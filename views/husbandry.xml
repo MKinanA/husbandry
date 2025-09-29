@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="husbandry_livestock_action">
+            <field name="name">Livestock</field>
+            <field name="res_model">husbandry.livestock</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="husbandry_type_action">
+            <field name="name">Livestock Type</field>
+            <field name="res_model">husbandry.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="husbandry_inspection_action">
+            <field name="name">Inspection</field>
+            <field name="res_model">husbandry.inspection</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

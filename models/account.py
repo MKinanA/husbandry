@@ -1,0 +1,55 @@
+import calendar
+import json
+from datetime import date, datetime, timedelta, tzinfo
+from dateutil.relativedelta import relativedelta
+
+from odoo import models, fields, api, tools, exceptions, _
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
+from odoo.tools import float_compare, float_is_zero
+import pytz
+
+
+class AccountInvoice(models.Model):
+    _inherit = 'account.invoice'
+
+    outstanding_credits_debits_widget = fields.Text(compute='_get_outstanding_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
+    payments_widget = fields.Text(compute='_get_payment_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
+    has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
+
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(AccountInvoice, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        View = self.env['ir.ui.view'].sudo()
+        from lxml import etree
+        if res.get('view_id'):
+           view_id = res['view_id']
+        if view_id:
+           root_view = View.browse(view_id).read_combined(['arch'])
+           res['arch'] = root_view['arch']
+        doc = etree.XML(res['arch'])
+        if self.env.ref('husbandry_12.group_husbandry_customer') in self.env.user.groups_id:
+            if view_type == 'form':
+                for node in doc.xpath("//form"):
+                    node.set('create', 'false')
+                    node.set('edit', 'false')
+                    node.set('delete', 'false')
+                    node.set('copy', 'false')
+                doc = View.apply_inheritance_specs(doc, etree.XML("""
+                <data>
+                    <xpath expr="//header" position="replace">
+                        <header>
+                            <button name="preview_invoice" type="object" string="Preview"/>
+                            <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,open,paid"/>
+                        </header>
+                    </xpath>
+                </data>
+                """), view_id)
+            if view_type == 'tree':
+                for node in doc.xpath("//tree"):
+                    node.set('create', 'false')
+                    node.set('copy', 'false')
+                    node.set('delete', 'false')
+        res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc, view_id)
+        return res
