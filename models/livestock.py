@@ -24,7 +24,7 @@ class HusbandryLivestock(models.Model):
     jatah = fields.Char(string="Jatah", readonly=True, states={'draft': [('readonly', False)]})
     kelompok = fields.Text(string="Kelompok", readonly=True, states={'draft': [('readonly', False)]})
 
-    invoice_id = fields.Many2one('account.invoice', string="Invoice", readonly=True, )
+    invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, )
 
     state = fields.Selection(
         [('draft', 'Draft'),
@@ -199,7 +199,7 @@ class HusbandryLivestock(models.Model):
         # date_due = datetime.strftime(pytz.utc.localize(datetime.datetime.utcnow() + timedelta(days=2)).astimezone(user_tz),"%Y-%m-%d %H:%M:%S")
         date_due = (tools.datetime.now()+timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
 
-        invoice = self.env['account.invoice'].create({
+        invoice = self.env['account.move'].create({
             'name': self.name,
             'origin': self.reference,
             'type': 'out_invoice',
@@ -223,13 +223,13 @@ class HusbandryLivestock(models.Model):
         self.invoice_id.action_invoice_open()
         self.state = 'onbook'
 
-        form_view = self.env.ref('account.invoice_form')
-        tree_view = self.env.ref('account.invoice_tree')
+        form_view = self.env.ref('account.move_form')
+        tree_view = self.env.ref('account.move_tree')
         value = {
             'domain': str([('id', '=', self.invoice_id.id)]),
             'view_type': 'form',
             'view_mode': 'form',
-            'res_model': 'account.invoice',
+            'res_model': 'account.move',
             'view_id': False,
             'views': [(form_view and form_view.id or False, 'form'),
                       (tree_view and tree_view.id or False, 'tree')],

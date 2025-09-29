@@ -11,11 +11,11 @@ import pytz
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
-    outstanding_credits_debits_widget = fields.Text(compute='_get_outstanding_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
-    payments_widget = fields.Text(compute='_get_payment_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
-    has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON', groups="account.group_account_invoice,husbandry_12.group_husbandry_customer")
+    outstanding_credits_debits_widget = fields.Text(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
+    payments_widget = fields.Text(compute='_get_payment_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
+    has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
 
 
     @api.model

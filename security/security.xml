@@ -56,9 +56,9 @@
         <field name="domain_force"> [('state','not in', ['draft', 'cancel'])]</field>
     </record>
 
-    <record model="ir.rule" id="customer_view_account_invoice_rule">
+    <record model="ir.rule" id="customer_view_account_move_rule">
         <field name="name">Customer View Invoice</field>
-        <field name="model_id" ref="account.model_account_invoice" />
+        <field name="model_id" ref="account.model_account_move" />
         <field name="groups"
             eval="[(4, ref('husbandry_12.group_husbandry_customer'))]" />
         <field name="domain_force"> [('partner_id','=',user.partner_id.id)]</field>

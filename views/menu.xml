@@ -14,7 +14,7 @@
         <menuitem id="husbandry_livestock_customer_menu" name="Livestock"
             parent="husbandry_customer_menu" sequence="1"
             action="husbandry_livestock_action" />
-        <menuitem id="account_invoice_customer_menu" name="Invoice"
+        <menuitem id="account_move_customer_menu" name="Invoice"
             parent="husbandry_customer_menu" sequence="2"
             action="account.action_invoice_tree1" />
 
