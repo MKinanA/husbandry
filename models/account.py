@@ -3,10 +3,10 @@ import json
 from datetime import date, datetime, timedelta, tzinfo
 from dateutil.relativedelta import relativedelta
 
-from odoo import models, fields, api, tools, exceptions, _
-from odoo.exceptions import UserError, ValidationError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
-from odoo.tools import float_compare, float_is_zero
+from odoo import models, fields, api, tools, exceptions, _ # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
+from odoo.exceptions import UserError, ValidationError # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
+from odoo.tools import float_compare, float_is_zero # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
 import pytz
 
 

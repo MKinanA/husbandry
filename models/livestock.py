@@ -1,5 +1,5 @@
-from odoo import models, fields, api, tools
-from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo import models, fields, api, tools # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
+from odoo.exceptions import AccessError, UserError, ValidationError # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
 
 from datetime import date, datetime, timedelta, tzinfo
 import pytz
