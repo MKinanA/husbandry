@@ -13,4 +13,7 @@
         'views/menu.xml',
         'security/ir.model.access.csv',
     ],
+
+    'application': True,
+    'installable': True,
 }
