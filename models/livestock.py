@@ -162,7 +162,7 @@ class HusbandryLivestock(models.Model):
         res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc, view_id)
         return res
 
-    @api.multi
+    # @api.multi
     def create_product(self):
         if not self.product_id:
            name = self.name
@@ -174,7 +174,7 @@ class HusbandryLivestock(models.Model):
            self.state = 'saleable'
 
 
-    @api.multi
+    # @api.multi
     def create_invoice(self):
         account_id = False
         product = self.product_id
@@ -240,6 +240,6 @@ class HusbandryLivestock(models.Model):
         }
         return value
 
-    @api.multi
+    # @api.multi
     def paid_invoice(self):
         self.state = 'soldout'
