@@ -16,9 +16,6 @@
         'views/husbandry.xml',
         'views/menu.xml',
         'security/ir.model.access.csv',
-        # 'views/account_invoice.xml',
-        # 'views/husbandry_inspection.xml',
-        # 'views/husbandry_livestock.xml',
     ],
 
     'application': True,
