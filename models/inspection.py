@@ -48,13 +48,13 @@ class HusbandryInspection(models.Model):
                     </sheet>
                 </form>
         """
-        elif view_type == 'tree':
+        elif view_type == 'list':
              res['arch'] = """
-                <tree string="Inpsection">
+                <list string="Inpsection">
                     <field name="name"/>
                     <field name="date"/>
                     <field name="livestock_id"/>
-                </tree>
+                </list>
         """
         elif view_type == 'search':
              res['arch'] = """

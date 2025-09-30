@@ -47,8 +47,8 @@ class AccountInvoice(models.Model):
                     </xpath>
                 </data>
                 """), view_id)
-            if view_type == 'tree':
-                for node in doc.xpath("//tree"):
+            if view_type == 'list':
+                for node in doc.xpath("//list"):
                     node.set('create', 'false')
                     node.set('copy', 'false')
                     node.set('delete', 'false')

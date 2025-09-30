@@ -90,13 +90,13 @@ class HusbandryLivestock(models.Model):
                     </sheet>
                 </form>
         """
-        elif view_type == 'tree':
+        elif view_type == 'list':
             res['arch'] = """
-                <tree string="Livestock">
+                <list string="Livestock">
             """
             if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
                 res['arch'] = """
-                    <tree string="Livestock" create='false' edit='false' delete='false' copy='false'>
+                    <list string="Livestock" create='false' edit='false' delete='false' copy='false'>
                 """ 
             res['arch'] = res['arch'] + """
                 
@@ -107,7 +107,7 @@ class HusbandryLivestock(models.Model):
                     <field name="owner_ids" widget="many2many_tags"/>
                     <field name="purchase_price" />
                     <field name="state" />
-                </tree>
+                </list>
         """
         elif view_type == 'kanban':
             res['arch'] = """
@@ -225,7 +225,7 @@ class HusbandryLivestock(models.Model):
         self.state = 'onbook'
 
         form_view = self.env.ref('account.move_form')
-        tree_view = self.env.ref('account.move_tree')
+        tree_view = self.env.ref('account.move_list')
         value = {
             'domain': str([('id', '=', self.invoice_id.id)]),
             'view_type': 'form',
@@ -233,7 +233,7 @@ class HusbandryLivestock(models.Model):
             'res_model': 'account.move',
             'view_id': False,
             'views': [(form_view and form_view.id or False, 'form'),
-                      (tree_view and tree_view.id or False, 'tree')],
+                      (tree_view and tree_view.id or False, 'list')],
             'type': 'ir.actions.act_window',
             'res_id': self.invoice_id.id,
             'target': 'current',
