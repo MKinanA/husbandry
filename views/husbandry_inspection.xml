@@ -1,0 +1,72 @@
+<odoo>
+    <!-- Form View -->
+    <record id="view_husbandry_inspection_form" model="ir.ui.view">
+        <field name="name">husbandry.inspection.form</field>
+        <field name="model">husbandry.inspection</field>
+        <field name="arch" type="xml">
+            <form string="Inspection">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="note"/>
+                        </group>
+                        <group>
+                            <field name="livestock_id"/>
+                            <field name="date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Images">
+                            <group>
+                                <field name="image_front" widget="image"/>
+                                <field name="image_right" widget="image"/>
+                                <field name="image_left" widget="image"/>
+                                <field name="image_back" widget="image"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_husbandry_inspection_tree" model="ir.ui.view">
+        <field name="name">husbandry.inspection.tree</field>
+        <field name="model">husbandry.inspection</field>
+        <field name="arch" type="xml">
+            <tree string="Inspection">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="livestock_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_husbandry_inspection_search" model="ir.ui.view">
+        <field name="name">husbandry.inspection.search</field>
+        <field name="model">husbandry.inspection</field>
+        <field name="arch" type="xml">
+            <search string="Inspection">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="livestock_id"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_husbandry_inspection" model="ir.actions.act_window">
+        <field name="name">Inspections</field>
+        <field name="res_model">husbandry.inspection</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_husbandry_inspection"
+              name="Inspections"
+              parent="menu_husbandry_root"
+              action="action_husbandry_inspection"/>
+</odoo>
