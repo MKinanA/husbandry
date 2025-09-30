@@ -5,12 +5,12 @@
         <menuitem id="husbandry_inspection_menu" parent="husbandry_menu" action="husbandry_inspection_action" name="Inspection" sequence="2"/>
         <menuitem id="husbandry_type_menu" parent="husbandry_menu" action="husbandry_type_action" name="Type" sequence="3"/>
 
-        <menuitem id="husbandry_vendor_menu" name="Vendor" groups="husbandry_12.group_husbandry_vendor" />
+        <menuitem id="husbandry_vendor_menu" name="Vendor" groups="husbandry.group_husbandry_vendor" />
         <menuitem id="husbandry_livestock_vendor_menu" name="Livestock"
             parent="husbandry_vendor_menu" sequence="1"
             action="husbandry_livestock_action" />
 
-        <menuitem id="husbandry_customer_menu" name="Customer" groups="husbandry_12.group_husbandry_customer" />
+        <menuitem id="husbandry_customer_menu" name="Customer" groups="husbandry.group_husbandry_customer" />
         <menuitem id="husbandry_livestock_customer_menu" name="Livestock"
             parent="husbandry_customer_menu" sequence="1"
             action="husbandry_livestock_action" />

@@ -46,7 +46,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = """
                 <form string="Livestock">
             """
-            if self.env.ref('husbandry_12.group_husbandry_customer') in self.env.user.groups_id:
+            if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
                 res['arch'] = """
                     <form string="Livestock" create='false' edit='false' delete='false' copy='false'>
                 """ 
@@ -93,7 +93,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = """
                 <tree string="Livestock">
             """
-            if self.env.ref('husbandry_12.group_husbandry_customer') in self.env.user.groups_id:
+            if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
                 res['arch'] = """
                     <tree string="Livestock" create='false' edit='false' delete='false' copy='false'>
                 """ 
@@ -112,7 +112,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = """
                 <kanban class="o_kanban_mobile">
             """
-            if self.env.ref('husbandry_12.group_husbandry_customer') in self.env.user.groups_id:
+            if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
                 res['arch'] = """
                     <kanban class="o_kanban_mobile" create='false' edit='false' delete='false' copy='false'>
                 """ 

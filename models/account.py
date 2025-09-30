@@ -13,9 +13,9 @@ import pytz
 class AccountInvoice(models.Model):
     _inherit = 'account.move'
 
-    outstanding_credits_debits_widget = fields.Text(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
-    payments_widget = fields.Text(compute='_get_payment_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
-    has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry_12.group_husbandry_customer")
+    outstanding_credits_debits_widget = fields.Text(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry.group_husbandry_customer")
+    payments_widget = fields.Text(compute='_get_payment_info_JSON', groups="account.group_account_move,husbandry.group_husbandry_customer")
+    has_outstanding = fields.Boolean(compute='_get_outstanding_info_JSON', groups="account.group_account_move,husbandry.group_husbandry_customer")
 
 
     @api.model
@@ -29,7 +29,7 @@ class AccountInvoice(models.Model):
            root_view = View.browse(view_id).read_combined(['arch'])
            res['arch'] = root_view['arch']
         doc = etree.XML(res['arch'])
-        if self.env.ref('husbandry_12.group_husbandry_customer') in self.env.user.groups_id:
+        if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
             if view_type == 'form':
                 for node in doc.xpath("//form"):
                     node.set('create', 'false')
