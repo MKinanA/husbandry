@@ -4,25 +4,32 @@ from odoo.exceptions import AccessError, UserError, ValidationError # pyright: i
 from datetime import date, datetime, timedelta, tzinfo
 import pytz
 
+readonly_on_not_draft_states = { # TODO: Always update these when adding new state values in the model
+    'saleable': [('readonly', True)],
+    'onbook': [('readonly', True)],
+    'soldout': [('readonly', True)],
+    'cancel': [('readonly', True)],
+}
+
 class HusbandryLivestock(models.Model):
     _name = 'husbandry.livestock'
 
     name = fields.Char(string="Livestock ID", readonly=False, required=False)
-    owner_ids = fields.Many2many('res.partner', string="Owner", readonly=True, states={'draft': [('readonly', False)]})
-    weight = fields.Float(string="Weight", readonly=True, states={'draft': [('readonly', False)]})
-    age = fields.Float(string="Age", readonly=True, states={'draft': [('readonly', False)]})
-    origin = fields.Char(string="Origin", readonly=True, states={'draft': [('readonly', False)]})
-    vendor_id = fields.Many2one('res.partner', string="Vendor", default=lambda self: self.env.user.partner_id.id, readonly=True, states={'draft': [('readonly', False)]})
-    purchase_price = fields.Float(string="Purchase Price", readonly=True, states={'draft': [('readonly', False)]})
-    type_id = fields.Many2one('husbandry.type', string="Type", readonly=True, states={'draft': [('readonly', False)]})
+    owner_ids = fields.Many2many('res.partner', string="Owner", states=readonly_on_not_draft_states)
+    weight = fields.Float(string="Weight", states=readonly_on_not_draft_states)
+    age = fields.Float(string="Age", states=readonly_on_not_draft_states)
+    origin = fields.Char(string="Origin", states=readonly_on_not_draft_states)
+    vendor_id = fields.Many2one('res.partner', string="Vendor", default=lambda self: self.env.user.partner_id.id, states=readonly_on_not_draft_states)
+    purchase_price = fields.Float(string="Purchase Price", states=readonly_on_not_draft_states)
+    type_id = fields.Many2one('husbandry.type', string="Type", states=readonly_on_not_draft_states)
     product_id = fields.Many2one('product.product', string="Saleable Product", readonly=True, )
-    image_front = fields.Binary(string="Front Image", readonly=True, states={'draft': [('readonly', False)]})
-    image_right = fields.Binary(string="Right Image", readonly=True, states={'draft': [('readonly', False)]})
-    image_left = fields.Binary(string="Left Image", readonly=True, states={'draft': [('readonly', False)]})
-    image_back = fields.Binary(string="Back Image", readonly=True, states={'draft': [('readonly', False)]})
-    reference = fields.Char(string="Reference", readonly=True, states={'draft': [('readonly', False)]})
-    jatah = fields.Char(string="Jatah", readonly=True, states={'draft': [('readonly', False)]})
-    kelompok = fields.Text(string="Kelompok", readonly=True, states={'draft': [('readonly', False)]})
+    image_front = fields.Binary(string="Front Image", states=readonly_on_not_draft_states)
+    image_right = fields.Binary(string="Right Image", states=readonly_on_not_draft_states)
+    image_left = fields.Binary(string="Left Image", states=readonly_on_not_draft_states)
+    image_back = fields.Binary(string="Back Image", states=readonly_on_not_draft_states)
+    reference = fields.Char(string="Reference", states=readonly_on_not_draft_states)
+    jatah = fields.Char(string="Jatah", states=readonly_on_not_draft_states)
+    kelompok = fields.Text(string="Kelompok", states=readonly_on_not_draft_states)
 
     invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, )
 
