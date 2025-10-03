@@ -19,7 +19,7 @@ class AccountInvoice(models.Model):
 
 
     @api.model
-    def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+    def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False, **unused_kwargs):
         print('\nget_view method on AccountInvoice called')
         res = super(AccountInvoice, self).get_view(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         View = self.env['ir.ui.view'].sudo()
