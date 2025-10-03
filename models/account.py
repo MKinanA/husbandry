@@ -52,5 +52,5 @@ class AccountInvoice(models.Model):
                     node.set('create', 'false')
                     node.set('copy', 'false')
                     node.set('delete', 'false')
-        res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc, view_id)
+        res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc)
         return res

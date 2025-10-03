@@ -67,5 +67,5 @@ class HusbandryInspection(models.Model):
         from lxml import etree
         doc = etree.XML(res['arch'])
         View = self.env['ir.ui.view'].sudo()
-        res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc, view_id)
+        res['arch'], res['fields'] = View.postprocess_and_fields(self._name, doc)
         return res
