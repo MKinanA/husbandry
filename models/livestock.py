@@ -4,12 +4,15 @@ from odoo.exceptions import AccessError, UserError, ValidationError # pyright: i
 from datetime import date, datetime, timedelta, tzinfo
 import pytz
 
-readonly_on_not_draft_states = { # TODO: Always update these when adding new state values in the model
-    'saleable': [('readonly', True)],
-    'onbook': [('readonly', True)],
-    'soldout': [('readonly', True)],
-    'cancel': [('readonly', True)],
-}
+states = [
+    ('draft', 'Draft'),
+    ('saleable', 'Saleable'),
+    ('onbook', 'On Book'),
+    ('soldout', 'Sold Out'),
+    ('cancel','Cancel'),
+]
+exclude_for_readonly = 'draft'
+readonly_on_not_draft_states = {state[0]: [('readonly', True)] for state in states if state[0] != exclude_for_readonly}
 
 class HusbandryLivestock(models.Model):
     _name = 'husbandry.livestock'
@@ -33,12 +36,7 @@ class HusbandryLivestock(models.Model):
 
     invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, )
 
-    state = fields.Selection(
-        [('draft', 'Draft'),
-        ('saleable', 'Saleable'),
-        ('onbook', 'On Book'),
-        ('soldout', 'Sold Out'),
-        ('cancel','Cancel')], string="State", readonly=True, default="draft")
+    state = fields.Selection(states, string="State", readonly=True, default="draft")
 
     @api.model
     def create(self, vals):
