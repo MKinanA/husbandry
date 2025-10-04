@@ -59,7 +59,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = res['arch'] + """
 
                     <header>
-                        <button name="create_invoice" string="Buy" type="object" attrs="{'invisible': [('state', '!=', 'saleable')]}" invisible="1"/>
+                        <button name="create_invoice" string="Buy" type="object" invisible="state != 'saleable'"/>
                         """f"""<field name="state" widget="statusbar" statusbar_visible="{','.join(map(lambda state: state[0], states))}" />""""""
                     </header>
                     <sheet>
@@ -69,8 +69,8 @@ class HusbandryLivestock(models.Model):
                                 <field name="reference"/>
                                 <field name="weight"/>
                                 <field name="origin"/>
-                                <field name="product_id" attrs="{'invisible': [('product_id', '=', False)]}"/>
-                                <button name="create_product" string="Make Saleable" type="object" attrs="{'invisible': [('product_id', '!=', False)]}"/>
+                                <field name="product_id" invisible="product_id == False"/>
+                                <button name="create_product" string="Make Saleable" type="object" invisible="product_id != False"/>
                             </group>
                             <group>
                                 <field name="create_date" string="Registration Date" readonly="1"/>
