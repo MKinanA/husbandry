@@ -176,7 +176,7 @@ class HusbandryLivestock(models.Model):
               name = name + " - " + self.type_id.name
            category_id = self.env.ref('product.product_category_all')
            # uom_id = self.env.ref('product.product_uom_unit')
-           self.sudo().product_id = self.sudo().product_id.create({'name': name, 'image': self.image_front, 'standard_price': self.purchase_price, 'categ_id': category_id.id, })# 'uom_po_id': uom_id.id, 'uom_id': uom_id.id,})
+           self.sudo().product_id = self.sudo().product_id.create({'name': name, 'standard_price': self.purchase_price, 'categ_id': category_id.id, })# 'uom_po_id': uom_id.id, 'uom_id': uom_id.id,})
            self.state = 'saleable'
 
 
@@ -190,12 +190,12 @@ class HusbandryLivestock(models.Model):
             account_id = product.categ_id.property_account_income_categ_id.id
         if not account_id:
             raise UserError(
-                _('There is no income account defined for this product: "%s". \
+                ('There is no income account defined for this product: "%s". \
                    You may have to install a chart of account from Accounting \
                    app, settings menu.') % (product.name,))
 
         if self.purchase_price <= 0.00:
-            raise UserError(_('The value of the deposit amount must be \
+            raise UserError(('The value of the deposit amount must be \
                              positive.'))
         else:
             amount = self.purchase_price
@@ -203,7 +203,7 @@ class HusbandryLivestock(models.Model):
 
         # user_tz = pytz.timezone("Asia/Jakarta")
         # date_due = datetime.strftime(pytz.utc.localize(datetime.datetime.utcnow() + timedelta(days=2)).astimezone(user_tz),"%Y-%m-%d %H:%M:%S")
-        date_due = (tools.datetime.now()+timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
+        date_due = (datetime.now()+timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S")
 
         invoice = self.env['account.move'].create({
             'name': self.name,
