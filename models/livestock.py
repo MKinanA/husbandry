@@ -19,11 +19,11 @@ class HusbandryLivestock(models.Model):
 
     name = fields.Char(string="Livestock ID", readonly=False, required=False)
     owner_ids = fields.Many2many('res.partner', string="Owner", states=readonly_on_not_draft_states)
-    weight = fields.Float(string="Weight", states=readonly_on_not_draft_states)
+    weight = fields.Float(string="Weight (kg)", states=readonly_on_not_draft_states)
     age = fields.Float(string="Age", states=readonly_on_not_draft_states)
     origin = fields.Char(string="Origin", states=readonly_on_not_draft_states)
     vendor_id = fields.Many2one('res.partner', string="Vendor", default=lambda self: self.env.user.partner_id.id, states=readonly_on_not_draft_states)
-    purchase_price = fields.Float(string="Purchase Price", states=readonly_on_not_draft_states)
+    purchase_price = fields.Float(string="Purchase Price (Rp)", states=readonly_on_not_draft_states)
     type_id = fields.Many2one('husbandry.type', string="Type", states=readonly_on_not_draft_states)
     product_id = fields.Many2one('product.product', string="Saleable Product", readonly=True, )
     image_front = fields.Binary(string="Front Image", states=readonly_on_not_draft_states)
@@ -59,7 +59,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = res['arch'] + """
 
                     <header>
-                        <button name="create_invoice" string="Buy" type="object" attrs="{'invisible': [('state', '!=', 'saleable')]}"/>
+                        <button name="create_invoice" string="Buy" type="object" attrs="{'invisible': [('state', '!=', 'saleable')]}" invisible="1"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,saleable,soldout" />
                     </header>
                     <sheet>
