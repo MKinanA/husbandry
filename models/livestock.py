@@ -69,7 +69,7 @@ class HusbandryLivestock(models.Model):
                                 <field name="reference"/>
                                 <field name="weight"/>
                                 <field name="origin"/>
-                                <field name="product_id" invisible="product_id == False"/>
+                                <field name="product_id" invisible="1"/>
                                 <button name="create_product" string="Make Saleable" type="object" invisible="product_id != False"/>
                             </group>
                             <group>
