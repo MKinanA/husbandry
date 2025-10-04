@@ -60,7 +60,7 @@ class HusbandryLivestock(models.Model):
 
                     <header>
                         <button name="create_invoice" string="Buy" type="object" attrs="{'invisible': [('state', '!=', 'saleable')]}" invisible="1"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,saleable,soldout" />
+                        """f"""<field name="state" widget="statusbar" statusbar_visible="{','.join(map(lambda state: state[0], states))}" />""""""
                     </header>
                     <sheet>
                         <group>
