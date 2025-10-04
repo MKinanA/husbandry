@@ -16,6 +16,7 @@
         'views/husbandry.xml',
         'views/menu.xml',
         'security/ir.model.access.csv',
+        'views/catalog.xml',
     ],
 
     'application': True,
