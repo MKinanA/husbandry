@@ -59,7 +59,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = res['arch'] + """
 
                     <header>
-                        <button name="create_invoice" string="Buy" type="object" invisible="state != 'saleable'"/>
+                        <button name="create_invoice" string="Buy (coming soon)" type="object" invisible="state != 'saleable'" class="disabled"/>
                         """f"""<field name="state" widget="statusbar" statusbar_visible="{','.join(map(lambda state: state[0], states))}" />""""""
                     </header>
                     <sheet>
