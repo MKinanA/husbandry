@@ -207,13 +207,17 @@ class HusbandryLivestock(models.Model):
 
         invoice = self.env['account.move'].create({
             'name': self.name,
-            'origin': self.reference,
-            'type': 'out_invoice',
+            # 'origin': self.reference,
+            'invoice_origin': self.reference,
+            # 'type': 'out_invoice',
+            'move_type': 'out_invoice',
             'reference': False,
             'account_id': self.vendor_id.property_account_receivable_id.id,
             'partner_id': self.env.user.partner_id.id,
-            'date_due': date_due,
-            'invoice_line_ids': [(0, 0, {
+            # 'date_due': date_due,
+            'invoice_date_due': date_due,
+            # 'invoice_line_ids': [(0, 0, {
+            'line_ids': [(0, 0, {
                 'name': name,
                 'origin': self.reference,
                 'account_id': account_id,
