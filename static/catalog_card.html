@@ -1,0 +1,16 @@
+<div id="product{id}" class="product-card w-full overflow-hidden shadow-2xs bg-gray-200 rounded-xl p-2">
+    <script>productStates['product{id}'] = '{state}';</script>
+    <div class="w-full aspect-16/9 flex items-center justify-center mb-2">
+        <img class="w-full h-full object-cover rounded-md" src="{image}" alt="Item Image">
+    </div>
+    <div class="bg-white p-4 rounded-md">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">{name}</h2>
+        <div class="flex flex-row justify-between">
+            <div>
+                <p class="text-gray-600 text-sm">Weight: {weight_formatted}kg</p>
+                <p class="text-gray-600 text-sm">Price: Rp{purchase_price_formatted}</p>
+            </div>
+            <button data-book-api="{book_api}" class="book-button py-2 px-3 leading-none self-end text-white font-medium bg-green-700 hover:bg-green-900 rounded-sm cursor-pointer focus:outline-2 focus:outline-offset-2 focus:outline-green-700 active:bg-green-900">Book Now</button>
+        </div>
+    </div>
+</div>
