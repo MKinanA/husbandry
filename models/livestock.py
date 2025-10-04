@@ -41,7 +41,7 @@ class HusbandryLivestock(models.Model):
     @api.model
     def create(self, vals):
         result = super().create(vals)
-        result.name = str(result.id).zfill(3)
+        # result.name = str(result.id).zfill(3)
         return result
 
     @api.model
