@@ -24,11 +24,13 @@ class Controller(http.Controller):
         filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
         cards='\n'.join(format(
             (STATIC_PATH/'catalog_card.html').read_text(),
-            image=f'data:image/*;base64,{(product.image_front or product.image_right or product.image_left or product.image_back or FALLBACK_IMAGE).decode()}',
+            inspections=product.get_inspections(),
+            last_inspection=product.get_last_inspection(),
+            image=f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
             weight_formatted=f'{product.weight:,}',
             purchase_price_formatted=f'{product.purchase_price:,}',
             book_api=f'{ROUTE_PREFIX}/{product.id}/book',
-            **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(x not in product_attr for x in ['<', '__'])}
+            **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},
         ) for product in http.request.env['husbandry.livestock'].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')]) if (str(product.type_id.id) == str(kwargs['filter']) if 'filter' in kwargs else True)),
     )
 
