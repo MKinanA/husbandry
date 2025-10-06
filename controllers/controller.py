@@ -1,6 +1,7 @@
 from odoo import http # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
 from pathlib import Path
 from json import loads as from_json, dumps as to_json
+from ..models.livestock import HusbandryLivestock
 from ..helpers.get_odoo_module_path import get_odoo_module_path
 
 private_globals = {*globals(), 'private_globals'} # A snapshot of all keys of `globals()` after declaration of all private consts, anything global declared after this will be exposed and accessible by the internet
@@ -24,15 +25,20 @@ class Controller(http.Controller):
         filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
         cards='\n'.join(format(
             (STATIC_PATH/'catalog_card.html').read_text(),
-            inspections=product.get_inspections(),
-            last_inspection=product.get_last_inspection(),
-            image=f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
-            weight_formatted=f'{product.weight:,}',
-            purchase_price_formatted=f'{product.purchase_price:,}',
-            book_api=f'{ROUTE_PREFIX}/{product.id}/book',
-            **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},
+            **self.get_product_data(product),
         ) for product in http.request.env['husbandry.livestock'].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')]) if (str(product.type_id.id) == str(kwargs['filter']) if 'filter' in kwargs else True)),
     )
+
+    @staticmethod
+    def get_product_data(product: HusbandryLivestock): return {
+        'inspections': product.get_inspections(),
+        'last_inspection': product.get_last_inspection(),
+        'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
+        'weight_formatted': f'{product.weight:,}',
+        'purchase_price_formatted': f'{product.purchase_price:,}',
+        'book_api': f'{ROUTE_PREFIX}/{product.id}/book',
+        **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},
+    }
 
     @http.route(f'{ROUTE_PREFIX}/<int:id>/book')
     def book(self, id: int, **kwargs):
