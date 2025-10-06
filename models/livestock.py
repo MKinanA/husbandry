@@ -1,4 +1,4 @@
-from odoo import models, fields, api, tools # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
+from odoo import models, fields, api, http, tools # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
 from odoo.exceptions import AccessError, UserError, ValidationError # pyright: ignore[reportMissingImports, reportAttributeAccessIssue] (ignore any import warnings here)
 
 from datetime import date, datetime, timedelta, tzinfo
@@ -37,6 +37,15 @@ class HusbandryLivestock(models.Model):
     invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, )
 
     state = fields.Selection(states, string="State", readonly=True, default="draft")
+
+    def get_inspections(self): return [inspection for inspection in http.request.env['husbandry.inspection'].search([], order='date') if inspection.livestock_id.id == self.id]
+    def get_last_inspection(self): return last_inspection[0] if len(last_inspection := self.get_inspections()) >= 1 else None
+
+    def get_last_image(self):
+        images = []
+        for inspection in self.get_inspections() + [self]: images += [eval(f'inspection.{image_property}') for image_property in inspection._fields if all(not image_property.startswith(x) for x in ['<', '_']) and 'binary' in inspection._fields[image_property].type.lower() and 'image' in image_property]
+        for image in images:
+            if image: return image
 
     @api.model
     def create(self, vals):
