@@ -9,22 +9,17 @@ get_safe_globals = lambda globals: {key: globals[key] for key in globals if key 
 
 ODOO_MODULE_PATH = get_odoo_module_path(__file__).resolve()
 ODOO_MODULE_NAME = ODOO_MODULE_PATH.parts[-1]
+
 ROUTE_PREFIX = f'/{ODOO_MODULE_NAME}'
 STATIC_FOLDER = 'static'
 STATIC_PATH = ODOO_MODULE_PATH/STATIC_FOLDER
 STATIC_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{STATIC_FOLDER}'
+
 FALLBACK_IMAGE = b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAWJAAAFiQFtaJ36AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC'
-PRICE_RANGES = [
-    [None, 3_000_000],
-    [3_000_000, 6_000_000],
-    [6_000_000, 9_000_000],
-    [9_000_000, 12_000_000],
-    [12_000_000, 15_000_000],
-    [15_000_000, 18_000_000],
-    [18_000_000, 21_000_000],
-    [21_000_000, 24_000_000],
-    [24_000_000, None],
-]
+
+PRICE_RANGE_DIFF = 3_000_000
+PRICE_RANGES_COUNT = 9
+PRICE_RANGES = [[(price_range * PRICE_RANGE_DIFF) if price_range > 0 else None, ((price_range + 1) * PRICE_RANGE_DIFF) if price_range < (PRICE_RANGES_COUNT - 1) else None] for price_range in range(PRICE_RANGES_COUNT)]
 
 def log(x, label=None):
     print(f'{f'[{label}] ' if label != None else ''}{type(x).__name__}({x})')
