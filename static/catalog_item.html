@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Katalog</title>
+        <script>
+            let productState = {state};
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    </head>
+    <body class="bg-white pt-2 pb-16 px-[4vw] sm:px-[6vw] md:px-[8vw] lg:px-[10vw] xl:px-[12vw] 2xl:px-[14vw]">
+        <img class="w-full aspect-16/9 object-cover rounded-md mb-4" src="{image}" alt="Item Image">
+        <div class="bg-white p-4 rounded-md">
+            <h2 class="text-2xl font-semibold text-gray-950 mb-2">{name}</h2>
+            <div class="flex flex-row justify-between">
+                <div>
+                    <p class="text-md text-gray-950">Weight: {weight_formatted}kg</p>
+                    <p class="text-md text-gray-950">Age: {age_rounded} y/o</p>
+                    <p class="text-md text-gray-950">Price: Rp{purchase_price_formatted}</p>
+                </div>
+                <button data-book-api="{book_api}" class="book-button py-2 px-3 leading-none self-end text-white font-medium bg-green-700 hover:bg-green-900 rounded-sm cursor-pointer focus:outline-2 focus:outline-offset-2 focus:outline-green-700 active:bg-green-900">Book Now</button>
+            </div>
+        </div>
+    </body>
+    <script src="{STATIC_ROUTE_PREFIX}/catalog_item.js"></script>
+</html>

@@ -14,6 +14,8 @@ ROUTE_PREFIX = f'/{ODOO_MODULE_NAME}'
 STATIC_FOLDER = 'static'
 STATIC_PATH = ODOO_MODULE_PATH/STATIC_FOLDER
 STATIC_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{STATIC_FOLDER}'
+CATALOG_ENDPOINT = 'catalog'
+CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{CATALOG_ENDPOINT}'
 
 FALLBACK_IMAGE = b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAWJAAAFiQFtaJ36AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC'
 
@@ -30,7 +32,10 @@ def format(string: str, **kwargs): return string.format(**kwargs, **get_safe_glo
 class Controller(http.Controller):
 
     @http.route(ROUTE_PREFIX)
-    def root(self, **kwargs): return format(
+    def root(self): return http.redirect(f'/{CATALOG_ENDPOINT}')
+
+    @http.route(f'{CATALOG_ROUTE_PREFIX}')
+    def catalog_index(self, **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
         type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
         price_filters=[{
@@ -46,12 +51,20 @@ class Controller(http.Controller):
         ),
     )
 
+    @http.route(f'{CATALOG_ROUTE_PREFIX}/<int:id>')
+    def catalog_item(self, id: int, **kwargs): return format(
+        (STATIC_PATH/'catalog_item.html').read_text(),
+        **self.get_product_data(product),
+    ) if (product := http.request.env['husbandry.livestock'].browse(id)) else None
+
     @staticmethod
     def get_product_data(product: HusbandryLivestock): return {
+        'product_details_url': f'{CATALOG_ROUTE_PREFIX}/{product.id}',
         'inspections': product.get_inspections(),
         'last_inspection': product.get_last_inspection(),
         'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
         'weight_formatted': f'{product.weight:,}',
+        'age_rounded': f'{round(product.age):,}',
         'purchase_price_formatted': f'{product.purchase_price:,}',
         'book_api': f'{ROUTE_PREFIX}/{product.id}/book',
         **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},

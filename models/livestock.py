@@ -77,6 +77,7 @@ class HusbandryLivestock(models.Model):
                                 <field name="name"/>
                                 <field name="reference"/>
                                 <field name="weight"/>
+                                <field name="age"/>
                                 <field name="origin"/>
                                 <field name="product_id" invisible="1"/>
                                 <button name="create_product" string="Make Saleable" type="object" invisible="product_id != False"/>
@@ -94,10 +95,10 @@ class HusbandryLivestock(models.Model):
                         <notebook>
                             <page string="Images">
                                 <group col="4">
-                                    <field name="image_front" widget="image" string="Image 1"/>
-                                    <field name="image_right" widget="image" string="Image 2"/>
-                                    <field name="image_left" widget="image" string="Image 3"/>
-                                    <field name="image_back" widget="image" string="Image 4"/>
+                                    <field name="image_front" widget="image" string="Image 1" options="{'size': [256, 256]}"/>
+                                    <field name="image_right" widget="image" string="Image 2" options="{'size': [256, 256]}"/>
+                                    <field name="image_left" widget="image" string="Image 3" options="{'size': [256, 256]}"/>
+                                    <field name="image_back" widget="image" string="Image 4" options="{'size': [256, 256]}"/>
                                 </group>
                             </page>
                         </notebook>

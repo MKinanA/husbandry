@@ -1,0 +1,1 @@
+const loc = window.location.href;
