@@ -32,7 +32,7 @@ def format(string: str, **kwargs): return string.format(**kwargs, **get_safe_glo
 class Controller(http.Controller):
 
     @http.route(ROUTE_PREFIX)
-    def root(self): return http.redirect(f'/{CATALOG_ENDPOINT}')
+    def root(self): return http.request.redirect(CATALOG_ROUTE_PREFIX)
 
     @http.route(f'{CATALOG_ROUTE_PREFIX}')
     def catalog_index(self, **kwargs): return format(
