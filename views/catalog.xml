@@ -1,7 +1,7 @@
 <odoo>
     <record id="catalog_action" model="ir.actions.act_url">
         <field name="name">Catalog</field>
-        <field name="url">/husbandry</field> <!-- Adjust this URL route -->
+        <field name="url">/husbandry/catalog</field> <!-- Adjust this URL route -->
         <field name="target">self</field>
     </record>
     <record id="catalog_menu" model="ir.ui.menu">

@@ -47,6 +47,18 @@ class HusbandryLivestock(models.Model):
         for image in images:
             if image: return image
 
+    @property
+    def last_weight(self):
+        for inspection in self.get_inspections():
+            if (weight := inspection.weight): return weight
+        return self.weight
+
+    @property
+    def last_age(self):
+        for inspection in self.get_inspections():
+            if (age := inspection.age): return age
+        return self.age
+
     @api.model
     def create(self, vals):
         result = super().create(vals)

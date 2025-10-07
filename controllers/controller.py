@@ -61,10 +61,10 @@ class Controller(http.Controller):
     def get_product_data(product: HusbandryLivestock): return {
         'product_details_url': f'{CATALOG_ROUTE_PREFIX}/{product.id}',
         'inspections': product.get_inspections(),
-        'last_inspection': product.get_last_inspection(),
+        'last_inspection_date': (last_inspection_date if (last_inspection := product.get_last_inspection()) and (last_inspection_date := last_inspection.date) else product.create_date.date()).strftime('%d/%m/%Y'),
         'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
-        'weight_formatted': f'{product.weight:,}',
-        'age_rounded': f'{round(product.age):,}',
+        'weight_formatted': f'{product.last_weight:,}',
+        'age_rounded': f'{round(product.last_age):,}',
         'purchase_price_formatted': f'{product.purchase_price:,}',
         'book_api': f'{ROUTE_PREFIX}/{product.id}/book',
         **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},

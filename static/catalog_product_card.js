@@ -8,9 +8,5 @@ document.querySelectorAll('.product-card').forEach(productCard => {
         bookButton.classList.add('bg-gray-950');
         bookButton.classList.add('opacity-50');
         bookButton.innerText = 'Booked'
-    } else bookButton.addEventListener('click', async event => {
-        console.log('book button clicked');
-        response = await fetch(bookButton.dataset.bookApi);
-        if ((await response.json()) === true) location.reload();
-    });
+    };
 });

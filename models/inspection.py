@@ -6,6 +6,8 @@ class HusbandryInspection(models.Model):
     note = fields.Text(string="Note")
     date = fields.Date(string="Inspection Date")
     livestock_id = fields.Many2one('husbandry.livestock', string="Livestock")
+    weight = fields.Float(string="Current Weight (kg)")
+    age = fields.Float(string="Current Age")
     image_front = fields.Binary(string="Front Image")
     image_right = fields.Binary(string="Right Image")
     image_left = fields.Binary(string="Left Image")
@@ -28,10 +30,12 @@ class HusbandryInspection(models.Model):
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="age"/>
                                 <field name="note"/>
                             </group>
                             <group>
                                 <field name="livestock_id"/>
+                                <field name="weight"/>
                                 <field name="date"/>
                             </group>
                         </group>
