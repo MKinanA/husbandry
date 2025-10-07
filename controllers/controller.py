@@ -14,6 +14,21 @@ STATIC_FOLDER = 'static'
 STATIC_PATH = ODOO_MODULE_PATH/STATIC_FOLDER
 STATIC_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{STATIC_FOLDER}'
 FALLBACK_IMAGE = b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAWJAAAFiQFtaJ36AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC'
+PRICE_RANGES = [
+    [None, 3_000_000],
+    [3_000_000, 6_000_000],
+    [6_000_000, 9_000_000],
+    [9_000_000, 12_000_000],
+    [12_000_000, 15_000_000],
+    [15_000_000, 18_000_000],
+    [18_000_000, 21_000_000],
+    [21_000_000, 24_000_000],
+    [24_000_000, None],
+]
+
+def log(x, label=None):
+    print(f'{f'[{label}] ' if label != None else ''}{type(x).__name__}({x})')
+    return x
 
 def format(string: str, **kwargs): return string.format(**kwargs, **get_safe_globals(globals()))
 
@@ -22,11 +37,18 @@ class Controller(http.Controller):
     @http.route(ROUTE_PREFIX)
     def root(self, **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
-        filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
+        type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
+        price_filters=[{
+            'name': f'Rp{price_range[0]:,} - {price_range[1]:,}' if price_range[0] and price_range[1] else f'> Rp{price_range[0]:,}' if price_range[0] else f'< Rp{price_range[1]:,}',
+            'value': f'{price_range[0] or ''}-{price_range[1] or ''}',
+        } for price_range in PRICE_RANGES],
         cards='\n'.join(format(
             (STATIC_PATH/'catalog_card.html').read_text(),
             **self.get_product_data(product),
-        ) for product in http.request.env['husbandry.livestock'].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')]) if (str(product.type_id.id) == str(kwargs['filter']) if 'filter' in kwargs else True)),
+        ) for product in http.request.env['husbandry.livestock'].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')])
+            if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
+            and (log(float(kwargs['price'].split('-')[0] or '-inf'), f'left-hand of {product}') <= log(product.purchase_price, f'middle-hand of {product}') <= log(float(kwargs['price'].split('-')[1] or 'inf'), f'right-hand of {product}') if 'price' in kwargs else True)
+        ),
     )
 
     @staticmethod

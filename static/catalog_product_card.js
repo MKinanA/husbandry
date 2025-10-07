@@ -5,13 +5,12 @@ const filtersData = [{name: 'All', value: 'all'}, ...filters];
 let currentFilter = (new URLSearchParams(document.location.search)).get('filter') ?? filtersData[0].value;
 
 // Elements
-const filterButton = document.getElementById('filterButton');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const dropdownIcon = document.getElementById('dropdownIcon');
-const selectedFilter = document.getElementById('selectedFilter');
-const filterOptions = document.getElementById('filterOptions');
-const productGrid = document.getElementById('productGrid');
-const productCards = document.querySelectorAll('.product-card');
+const filterButton = document.querySelector('.type-filter #filterButton');
+const dropdownMenu = document.querySelector('.type-filter #dropdownMenu');
+const dropdownIcon = document.querySelector('.type-filter #dropdownIcon');
+const selectedFilter = document.querySelector('.type-filter #selectedFilter');
+const filterOptions = document.querySelector('.type-filter #filterOptions');
+const productGrid = document.querySelector('.type-filter #productGrid');
 
 if (currentFilter != filtersData[0].value) selectedFilter.textContent = filtersData.filter(filter => filter.value == currentFilter)[0].name;
 
@@ -62,23 +61,6 @@ function applyFilter() {
     let params = [...(currentFilter != 'all' ? [`filter=${currentFilter}`] : []), ...(loc.split('?')[1]?.split('&').filter(param => param.split('=')[0] != 'filter') ?? [])];
     window.open(loc.split('?')[0] + (params.length > 0 ? '?' + params.join('&') : ''), '_self');
 }
-
-// Process every product card and book button
-productCards.forEach(productCard => {
-    const bookButton = document.querySelector(`#${productCard.id} .book-button`);
-    if (productStates[productCard.id] != 'saleable') {
-        bookButton.classList.add('pointer-events-none');
-        bookButton.classList.remove('bg-green-700');
-        bookButton.classList.remove('hover:bg-green-900');
-        bookButton.classList.add('bg-gray-950');
-        bookButton.classList.add('opacity-50');
-        bookButton.innerText = 'Booked'
-    } else bookButton.addEventListener('click', async event => {
-        console.log('book button clicked');
-        response = await fetch(bookButton.dataset.bookApi);
-        if ((await response.json()) === true) location.reload();
-    });
-});
 
 // Initialize
 generateFilterOptions();
