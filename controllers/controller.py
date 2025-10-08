@@ -34,7 +34,7 @@ class Controller(http.Controller):
     @http.route(ROUTE_PREFIX)
     def root(self): return http.request.redirect(CATALOG_ROUTE_PREFIX)
 
-    @http.route(f'{CATALOG_ROUTE_PREFIX}')
+    @http.route(f'{CATALOG_ROUTE_PREFIX}', auth='public', website=True)
     def catalog_index(self, **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
         type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),

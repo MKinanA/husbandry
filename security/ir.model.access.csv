@@ -38,5 +38,7 @@ access_account_asset_category_invoicing_payment_husbandry_customer,account.asset
 access_account_asset_asset_invoicing_payment_husbandry_customer,account.asset.asset,om_account_asset.model_account_asset_asset,husbandry.group_husbandry_customer,1,0,1,0
 access_account_asset_depreciation_line_invoicing_payment_husbandry_customer,account.asset.depreciation.line,om_account_asset.model_account_asset_depreciation_line,husbandry.group_husbandry_customer,1,0,1,0
 
+access_husbandry_type_public,access.husbandry.type.public,model_husbandry_type,base.group_public,1,0,0,0
+access_husbandry_livestock_public,access.husbandry.livestock.public,model_husbandry_livestock,base.group_public,1,0,0,0
 
 
