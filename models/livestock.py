@@ -17,7 +17,7 @@ readonly_on_not_draft_states = {state[0]: [('readonly', True)] for state in stat
 class HusbandryLivestock(models.Model):
     _name = 'husbandry.livestock'
 
-    name = fields.Char(string="Livestock ID", readonly=False, required=False)
+    name = fields.Char(string="Livestock ID", readonly=False, required=True)
     owner_ids = fields.Many2many('res.partner', string="Owner", states=readonly_on_not_draft_states)
     weight = fields.Float(string="Weight (kg)", states=readonly_on_not_draft_states)
     age = fields.Float(string="Age", states=readonly_on_not_draft_states)
