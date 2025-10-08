@@ -27,7 +27,7 @@ class AccountInvoice(models.Model):
         if res.get('view_id'):
            view_id = res['view_id']
         if view_id:
-           root_view = View.browse(view_id).read_combined(['arch'])
+           root_view = {'arch': View.browse(view_id).get_combined_arch()}
            res['arch'] = root_view['arch']
         doc = etree.XML(res['arch'])
         if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id:
