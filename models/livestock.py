@@ -107,10 +107,10 @@ class HusbandryLivestock(models.Model):
                         <notebook>
                             <page string="Images">
                                 <group col="4">
-                                    <field name="image_front" widget="image" string="Image 1" options="{'size': [256, 256]}"/>
-                                    <field name="image_right" widget="image" string="Image 2" options="{'size': [256, 256]}"/>
-                                    <field name="image_left" widget="image" string="Image 3" options="{'size': [256, 256]}"/>
-                                    <field name="image_back" widget="image" string="Image 4" options="{'size': [256, 256]}"/>
+                                    <field name="image_front" widget="image" string="Image 1" options="{'size': [320, 180]}"/>
+                                    <field name="image_right" widget="image" string="Image 2" options="{'size': [320, 180]}"/>
+                                    <field name="image_left" widget="image" string="Image 3" options="{'size': [320, 180]}"/>
+                                    <field name="image_back" widget="image" string="Image 4" options="{'size': [320, 180]}"/>
                                 </group>
                             </page>
                         </notebook>
