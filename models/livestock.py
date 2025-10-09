@@ -40,6 +40,10 @@ class HusbandryLivestock(models.Model):
 
     state = fields.Selection(states, string="State", readonly=True, default="draft")
 
+    _sql_constraints = [
+        ('unique_product_tmpl_id', 'unique(product_tmpl_id)', 'Each product can only be linked to one livestock.'),
+    ]
+
     def get_inspections(self): return [inspection for inspection in http.request.env['husbandry.inspection'].search([], order='date') if inspection.livestock_id.id == self.id]
     def get_last_inspection(self): return last_inspection[0] if len(last_inspection := self.get_inspections()) >= 1 else None
 
