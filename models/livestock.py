@@ -300,6 +300,6 @@ class HusbandryLivestock(models.Model):
     def paid_invoice(self):
         self.state = 'soldout'
 
-class Product(models.Model):
+class ProductTemplate(models.Model):
     _inherit = 'product.template'
     livestock_id = fields.Many2one('husbandry.livestock', required=False, ondelete='cascade')
