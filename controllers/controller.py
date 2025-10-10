@@ -47,7 +47,8 @@ class Controller(http.Controller):
             **self.get_product_data(product),
         ) for product in http.request.env['husbandry.livestock'].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')])
             if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
-            and (log(float(kwargs['price'].split('-')[0] or '-inf'), f'left-hand of {product}') <= log(product.purchase_price, f'middle-hand of {product}') <= log(float(kwargs['price'].split('-')[1] or 'inf'), f'right-hand of {product}') if 'price' in kwargs else True)
+            and (float(kwargs['price'].split('-')[0] or '-inf') <= product.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
+            and (any(str(kwargs['owner']).lower() in (str(owner.id), (owner.name).lower()) for owner in product.owner_ids) if 'owner' in kwargs else True)
         ),
     )
 
