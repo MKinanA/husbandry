@@ -14,8 +14,11 @@ ROUTE_PREFIX = f'/{ODOO_MODULE_NAME}'
 STATIC_FOLDER = 'static'
 STATIC_PATH = ODOO_MODULE_PATH/STATIC_FOLDER
 STATIC_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{STATIC_FOLDER}'
-CATALOG_ENDPOINT = 'catalog'
-CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{CATALOG_ENDPOINT}'
+
+FARM_CATALOG_ENDPOINT = 'farm-catalog'
+FARM_CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{FARM_CATALOG_ENDPOINT}'
+DKM_CATALOG_ENDPOINT = 'dkm-catalog'
+DKM_CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{DKM_CATALOG_ENDPOINT}'
 
 FALLBACK_IMAGE = b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAWJAAAFiQFtaJ36AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC'
 
@@ -32,9 +35,9 @@ def format(string: str, **kwargs): return string.format(**kwargs, **get_safe_glo
 class Controller(http.Controller):
 
     @http.route(ROUTE_PREFIX)
-    def root(self): return http.request.redirect(CATALOG_ROUTE_PREFIX)
+    def root(self): return http.request.redirect(FARM_CATALOG_ROUTE_PREFIX)
 
-    @http.route(f'{CATALOG_ROUTE_PREFIX}', auth='public', website=True)
+    @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
     def catalog_index(self, **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
         type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
@@ -52,7 +55,7 @@ class Controller(http.Controller):
         ),
     )
 
-    @http.route(f'{CATALOG_ROUTE_PREFIX}/<int:id>')
+    @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}/<int:id>')
     def catalog_item(self, id: int, **kwargs): return format(
         (STATIC_PATH/'catalog_item.html').read_text(),
         **self.get_product_data(product),
@@ -60,7 +63,7 @@ class Controller(http.Controller):
 
     @staticmethod
     def get_product_data(product: HusbandryLivestock): return {
-        'product_details_url': f'{CATALOG_ROUTE_PREFIX}/{product.id}',
+        'product_details_url': f'{FARM_CATALOG_ROUTE_PREFIX}/{product.id}',
         'inspections': product.get_inspections(),
         'last_inspection_date': (last_inspection_date if (last_inspection := product.get_last_inspection()) and (last_inspection_date := last_inspection.date) else product.create_date.date()).strftime('%d/%m/%Y'),
         'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
