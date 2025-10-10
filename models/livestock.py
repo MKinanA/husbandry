@@ -101,8 +101,9 @@ class HusbandryLivestock(models.Model):
                                 <field name="weight" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
-                                <field name="product_tmpl_id" invisible="1"/>
-                                <button name="create_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
+                                <field name="product_tmpl_id" readonly="True" invisible="state == 'draft'"/>
+                                <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
+                                <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
                             </group>
                             <group>
                                 <field name="create_date" string="Registration Date" readonly="1"/>
@@ -201,7 +202,7 @@ class HusbandryLivestock(models.Model):
         return res
 
     # @api.multi
-    def create_product(self):
+    def sell_product(self):
         # if not self.product_tmpl_id:
         #    name = self.name
         #    if self.type_id:
@@ -209,7 +210,21 @@ class HusbandryLivestock(models.Model):
         #    category_id = self.env.ref('product.product_category_all')
         #    # uom_id = self.env.ref('product.product_uom_unit')
         #    self.sudo().product_tmpl_id = self.sudo().product_tmpl_id.create({'name': name, 'list_price': self.purchase_price, 'categ_id': category_id.id, })# 'uom_po_id': uom_id.id, 'uom_id': uom_id.id,})
-        self.state = 'saleable'
+        
+        if self.state == 'draft':
+            self.state = 'saleable'
+            self.product_tmpl_id.update({
+                'sale_ok': True,
+            })
+        else: raise UserError('Product state is not draft')
+    
+    def unsell_product(self):
+        if self.state == 'saleable':
+            self.state = 'draft'
+            self.product_tmpl_id.update({
+                'sale_ok': False,
+            })
+        else: raise UserError('Can\'t unsell, product state is not \'saleable\'')
 
     # @api.multi
     def create_invoice(self):
