@@ -19,6 +19,8 @@ FARM_CATALOG_ENDPOINT = 'farm-catalog'
 FARM_CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{FARM_CATALOG_ENDPOINT}'
 DKM_CATALOG_ENDPOINT = 'dkm-catalog'
 DKM_CATALOG_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{DKM_CATALOG_ENDPOINT}'
+CATALOG_ITEM_ENDPOINT = 'catalog-item'
+CATALOG_ITEM_ROUTE_PREFIX = f'{ROUTE_PREFIX}/{CATALOG_ITEM_ENDPOINT}'
 
 FALLBACK_IMAGE = b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAWJAAAFiQFtaJ36AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8AAAAAAAAFAAFkeJU4AAAAAElFTkSuQmCC'
 
@@ -37,8 +39,7 @@ class Controller(http.Controller):
     @http.route(ROUTE_PREFIX)
     def root(self): return http.request.redirect(FARM_CATALOG_ROUTE_PREFIX)
 
-    @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
-    def catalog_index(self, **kwargs): return format(
+    def catalog(self,  **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
         type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
         price_filters=[{
@@ -52,10 +53,21 @@ class Controller(http.Controller):
             if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
             and (float(kwargs['price'].split('-')[0] or '-inf') <= product.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
             and (any(str(kwargs['owner']).lower() in (str(owner.id), (owner.name).lower()) for owner in product.owner_ids) if 'owner' in kwargs else True)
+            and (kwargs['hideall'] != True if 'hideall' in kwargs else True)
         ),
     )
 
-    @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}/<int:id>')
+    @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
+    def farm_catalog(self, **kwargs): return self.catalog(**kwargs)
+
+    @http.route(f'{DKM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
+    def dkm_catalog(self, **kwargs): return self.catalog(
+        hideall='masjid' not in kwargs,
+        owner=kwargs['masjid'] if 'masjid' in kwargs else False,
+        **{key: value for key, value in kwargs.items() if key != 'owner'},
+    )
+
+    @http.route(f'{CATALOG_ITEM_ROUTE_PREFIX}/<int:id>')
     def catalog_item(self, id: int, **kwargs): return format(
         (STATIC_PATH/'catalog_item.html').read_text(),
         **self.get_product_data(product),
@@ -63,7 +75,7 @@ class Controller(http.Controller):
 
     @staticmethod
     def get_product_data(product: HusbandryLivestock): return {
-        'product_details_url': f'{FARM_CATALOG_ROUTE_PREFIX}/{product.id}',
+        'product_details_url': f'{CATALOG_ITEM_ROUTE_PREFIX}/{product.id}',
         'inspections': product.get_inspections(),
         'last_inspection_date': (last_inspection_date if (last_inspection := product.get_last_inspection()) and (last_inspection_date := last_inspection.date) else product.create_date.date()).strftime('%d/%m/%Y'),
         'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
