@@ -33,4 +33,4 @@ access_husbandry_type_public,access.husbandry.type.public,model_husbandry_type,b
 access_husbandry_livestock_public,access.husbandry.livestock.public,model_husbandry_livestock,base.group_public,1,0,0,0
 access_husbandry_livestock_purchased_public,access.husbandry.livestock.purchased.public,model_husbandry_livestock_purchased,base.group_user,1,1,0,0
 access_husbandry_livestock_purchased_admin,access.husbandry.livestock.purchased.admin,model_husbandry_livestock_purchased,base.group_system,1,1,1,1
-access_husbandry_livestock_sell_wizard_admin,access.husbandry.livestock.sell.wizard.admin,model_husbandry_livestock_sell_wizard,base.group_system,1,1,1,1
+access_confirmation_wizard_admin,access.confirmation.wizard.admin,model_confirmation_wizard,base.group_system,1,1,1,1

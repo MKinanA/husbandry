@@ -1,7 +1,7 @@
 <odoo>
     <record id="confirm_livestock_sale_wizard_form" model="ir.ui.view">
-        <field name="name">Confirm Sale</field>
-        <field name="model">husbandry.livestock.sell.wizard</field>
+        <field name="name">Confirmation Wizard</field>
+        <field name="model">confirmation.wizard</field>
         <field name="arch" type="xml">
         <form string="Confirm Sale">
             <p>Confirm sale of livestock to booker?</p>
@@ -16,9 +16,8 @@
 
     <record id="action_open_confirm_livestock_sale_wizard" model="ir.actions.act_window">
         <field name="name">Sell Livestock</field>
-        <field name="res_model">husbandry.livestock.sell.wizard</field>
+        <field name="res_model">confirmation.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="context">{'livestock_id': active_id}</field>
     </record>
 </odoo>

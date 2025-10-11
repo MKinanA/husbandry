@@ -115,7 +115,7 @@ class HusbandryLivestock(models.Model):
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="product_tmpl_id" readonly="True" invisible="state == 'draft'"/>
-                                <field name="booker_id" readonly="True" invisible="not booker_id"/>
+                                <field name="booker_id" string="Owner" readonly="True" invisible="not booker_id"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
                                 <button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != 'onbook'"/>
@@ -250,11 +250,13 @@ class HusbandryLivestock(models.Model):
     def open_confirm_sale_wizard(self): return {
         'name': 'Confirm Sale',
         'type': 'ir.actions.act_window',
-        'res_model': 'husbandry.livestock.sell.wizard',
+        'res_model': 'confirmation.wizard',
         'view_mode': 'form',
         'target': 'new',
         'context': {
-            'livestock_id': self.id,
+            'target_model': 'husbandry.livestock',
+            'target_id': self.id,
+            'target_method': 'confirm_sale',
         },
     }
 
@@ -360,16 +362,8 @@ class HusbandryLivestockPurchased(models.Model):
 
     _sql_constraints = [
         ('unique_livestock_id', 'unique(livestock_id)', '`livestock_id` must be unique.'),
-        ('unique_owner_id', 'unique(owner_id)', '`owner_id` must be unique.'),
     ]
 
     def validate_livestock(self) -> bool: return (
         self.livestock_id.state == 'soldout'
     )
-
-class SellLivestockWizard(models.TransientModel):
-    _name = 'husbandry.livestock.sell.wizard'
-    def submit(self):
-        livestock_id = self.env['husbandry.livestock'].browse(self.env.context.get('livestock_id'))
-        if not livestock_id: raise UserError(f'Livestock to be sold not found ({livestock_id = }).')
-        livestock_id.confirm_sale()

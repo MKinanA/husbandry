@@ -52,7 +52,7 @@ class Controller(http.Controller):
         ) for product in http.request.env[table].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')])
             if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
             and (float(kwargs['price'].split('-')[0] or '-inf') <= product.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
-            and ((str(kwargs['owner']).lower() in (str(product.owner_id.id), str(product.owner_id.name).lower()) if 'owner' in dir(product) else False) if 'owner' in kwargs and 'owner' else True)
+            and ((str(kwargs['owner']).lower() in [str(product.owner_id.id), str(product.owner_id.name).lower()] if 'owner_id' in dir(product) else False) if 'owner' in kwargs and 'owner' else True)
             and (kwargs['hideall'] != True if 'hideall' in kwargs else True)
         ),
     )
