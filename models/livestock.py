@@ -16,11 +16,17 @@ readonly_on_not_draft_states = {state[0]: [('readonly', True)] for state in stat
 attrs_based_on_state = lambda state, states = readonly_on_not_draft_states: ' '.join((f'{attr[0]}="{int(attr[1]) if isinstance(attr[1], int) else attr[1]}"' for attr in states[state]) if state in states else '')
 xml_readonly_on_not_draft_states = ' or '.join(f'state == \'{state[0]}\'' for state in states if state[0] != exclude_for_readonly) # {'readonly': [*['|'] * (len([state for state in states if state[0] != exclude_for_readonly]) - 1), *[('state', '==', state[0]) for state in states if state[0] != exclude_for_readonly]]}
 
+purchased_states = [
+    ('draft', 'Draft'),
+    ('unbooked', 'Unbooked'),
+    ('booked', 'Booked'),
+    ('purchased', 'Purchased'),
+]
+
 class HusbandryLivestock(models.Model):
     _name = 'husbandry.livestock'
     _inherits = {'product.template': 'product_tmpl_id'}
 
-    owner_ids = fields.Many2many('res.partner', string="Owner", states=readonly_on_not_draft_states)
     weight = fields.Float(string="Weight (kg)", states=readonly_on_not_draft_states)
     age = fields.Float(string="Age", states=readonly_on_not_draft_states)
     origin = fields.Char(string="Origin", states=readonly_on_not_draft_states)
@@ -37,11 +43,14 @@ class HusbandryLivestock(models.Model):
     kelompok = fields.Text(string="Kelompok", states=readonly_on_not_draft_states)
 
     invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, )
+    purchased_livestock_id = fields.Many2one('husbandry.livestock.purchased', string="Purchase Information", readonly=True, required=False)
+    booker_id = fields.Many2one('res.partner', string='Booked by', readonly=True, required=False)
 
     state = fields.Selection(states, string="State", readonly=True, default="draft")
 
     _sql_constraints = [
         ('unique_product_tmpl_id', 'unique(product_tmpl_id)', 'Each product can only be linked to one livestock.'),
+        ('unique_purchased_livestock_id', 'unique(purchased_livestock_id)', 'A livestock purchase can only be linked to one livestock.'),
     ]
 
     def get_inspections(self): return [inspection for inspection in http.request.env['husbandry.inspection'].search([], order='date') if inspection.livestock_id.id == self.id]
@@ -75,9 +84,13 @@ class HusbandryLivestock(models.Model):
         })
         return record
 
+    def write(self, vals):
+        if self.purchased_livestock_id and not self.purchased_livestock_id.validate_livestock(): raise UserError('Can\'t do this modification, validation from `purchased_livestock` returned `False`.')
+        return super().write(vals)
+
     @api.model
     def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False, **unused_kwargs):
-        print(f'\nget_view method on HusbandryLivestock called,\n{self.state = }\n{attrs_based_on_state(self.state) = }\n')
+        print('\nget_view method on HusbandryLivestock called')
         res = super().get_view(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         if view_type == 'form':
             res['arch'] = """
@@ -102,12 +115,13 @@ class HusbandryLivestock(models.Model):
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="product_tmpl_id" readonly="True" invisible="state == 'draft'"/>
+                                <field name="booker_id" readonly="True" invisible="not booker_id"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
+                                <button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != 'onbook'"/>
                             </group>
                             <group>
                                 <field name="create_date" string="Registration Date" readonly="1"/>
-                                <field name="owner_ids" widget="many2many_tags" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="vendor_id" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="kelompok" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="type_id" readonly="{xml_readonly_on_not_draft_states}"/>
@@ -142,7 +156,6 @@ class HusbandryLivestock(models.Model):
                     <!--<field name="create_date" string="Registration Date" readonly="1"/>-->
                     <field name="weight" string="Berat"/>
                     <field name="vendor_id"/>
-                    <field name="owner_ids" widget="many2many_tags"/>
                     <field name="purchase_price" />
                     <field name="state" />
                 </list>
@@ -160,7 +173,6 @@ class HusbandryLivestock(models.Model):
                     <field name="name" string="Name (Livestock ID)"/>
                     <field name="weight" string="Berat"/>
                     <field name="vendor_id"/>
-                    <field name="owner_ids"/>
                     <field name="purchase_price" />
                     <field name="state" />
                     <templates>
@@ -225,6 +237,35 @@ class HusbandryLivestock(models.Model):
                 'sale_ok': False,
             })
         else: raise UserError('Can\'t unsell, product state is not \'saleable\'')
+
+    def book(self, partner_id: int | None = None):
+        if self.state != 'saleable': raise UserError('Not sellable.')
+        partner_id = partner_id if partner_id != None else self.env.user.partner_id.id
+        assert type(partner_id) == int, 'Invalid `partner_id`.'
+        self.update({
+            'state': 'onbook',
+            'booker_id': partner_id,
+        })
+
+    def open_confirm_sale_wizard(self): return {
+        'name': 'Confirm Sale',
+        'type': 'ir.actions.act_window',
+        'res_model': 'husbandry.livestock.sell.wizard',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'livestock_id': self.id,
+        },
+    }
+
+    def confirm_sale(self):
+        if self.state != 'onbook': raise UserError('Not booked.')
+        if not self.booker_id: raise UserError('Not booked.')
+        self.env['husbandry.livestock.purchased'].create({
+            'livestock_id': self.id,
+            'owner_id': self.booker_id.id,
+        })
+        self.state = 'soldout'
 
     # @api.multi
     def create_invoice(self):
@@ -303,3 +344,32 @@ class HusbandryLivestock(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     livestock_id = fields.Many2one('husbandry.livestock', required=False, ondelete='cascade')
+    _sql_constraints = [
+        ('unique_livestock_id', 'unique(livestock_id)', 'Each product can only be linked to one livestock.'),
+    ]
+
+class HusbandryLivestockPurchased(models.Model):
+    _name = 'husbandry.livestock.purchased'
+    _inherits = {
+        'husbandry.livestock': 'livestock_id',
+        'res.partner': 'owner_id',
+    }
+
+    livestock_id = fields.Many2one('husbandry.livestock', required=True, ondelete='restrict')
+    owner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
+
+    _sql_constraints = [
+        ('unique_livestock_id', 'unique(livestock_id)', '`livestock_id` must be unique.'),
+        ('unique_owner_id', 'unique(owner_id)', '`owner_id` must be unique.'),
+    ]
+
+    def validate_livestock(self) -> bool: return (
+        self.livestock_id.state == 'soldout'
+    )
+
+class SellLivestockWizard(models.TransientModel):
+    _name = 'husbandry.livestock.sell.wizard'
+    def submit(self):
+        livestock_id = self.env['husbandry.livestock'].browse(self.env.context.get('livestock_id'))
+        if not livestock_id: raise UserError(f'Livestock to be sold not found ({livestock_id = }).')
+        livestock_id.confirm_sale()
