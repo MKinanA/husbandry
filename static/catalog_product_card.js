@@ -1,7 +1,7 @@
 // Process every product card and book button
 document.querySelectorAll('.product-card').forEach(productCard => {
     const bookButton = document.querySelector(`#${productCard.id} .book-button`);
-    if (productStates[productCard.id] != 'saleable') {
+    if (productStates[productCard.id] == 'onbook') {
         bookButton.classList.add('pointer-events-none');
         bookButton.classList.remove('bg-green-700');
         bookButton.classList.remove('hover:bg-green-900');

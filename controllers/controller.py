@@ -39,8 +39,9 @@ class Controller(http.Controller):
     @http.route(ROUTE_PREFIX)
     def root(self): return http.request.redirect(FARM_CATALOG_ROUTE_PREFIX)
 
-    def catalog(self, table: str, **kwargs): return format(
+    def catalog(self, title: str, table: str, sql_filters: list[tuple], **kwargs): return format(
         (STATIC_PATH/'catalog.html').read_text(),
+        title=title,
         type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
         price_filters=to_json([{
             'name': f'Rp{price_range[0]:,} - {price_range[1]:,}' if price_range[0] and price_range[1] else f'> Rp{price_range[0]:,}' if price_range[0] else f'< Rp{price_range[1]:,}',
@@ -49,7 +50,7 @@ class Controller(http.Controller):
         cards='\n'.join(format(
             (STATIC_PATH/'catalog_card.html').read_text(),
             **self.get_product_data(product),
-        ) for product in http.request.env[table].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')])
+        ) for product in http.request.env[table].search([*['|'] * (len(sql_filters) - 1), *sql_filters])
             if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
             and (float(kwargs['price'].split('-')[0] or '-inf') <= product.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
             and ((str(kwargs['owner']).lower() in [str(product.owner_id.id), str(product.owner_id.name).lower()] if 'owner_id' in dir(product) else False) if 'owner' in kwargs and 'owner' else True)
@@ -58,11 +59,18 @@ class Controller(http.Controller):
     )
 
     @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
-    def farm_catalog(self, **kwargs): return self.catalog('husbandry.livestock', **kwargs)
+    def farm_catalog(self, **kwargs): return self.catalog(
+        'Farm Catalog',
+        'husbandry.livestock',
+        [('state', '=', 'saleable'), ('state', '=', 'onbook')],
+        **kwargs,
+    )
 
     @http.route(f'{DKM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
     def dkm_catalog(self, **kwargs): return self.catalog(
+        'DKM Catalog',
         'husbandry.livestock.purchased',
+        [],
         hideall='masjid' not in kwargs,
         owner=kwargs['masjid'] if 'masjid' in kwargs else False,
         **{key: value for key, value in kwargs.items() if key != 'owner'},

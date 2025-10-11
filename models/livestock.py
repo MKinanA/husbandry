@@ -353,12 +353,13 @@ class ProductTemplate(models.Model):
 class HusbandryLivestockPurchased(models.Model):
     _name = 'husbandry.livestock.purchased'
     _inherits = {
-        'husbandry.livestock': 'livestock_id',
         'res.partner': 'owner_id',
+        'husbandry.livestock': 'livestock_id',
     }
 
-    livestock_id = fields.Many2one('husbandry.livestock', required=True, ondelete='restrict')
     owner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
+    state = fields.Selection(purchased_states, string='State', readonly=True, default='draft')
+    livestock_id = fields.Many2one('husbandry.livestock', required=True, ondelete='restrict')
 
     _sql_constraints = [
         ('unique_livestock_id', 'unique(livestock_id)', '`livestock_id` must be unique.'),
@@ -367,3 +368,11 @@ class HusbandryLivestockPurchased(models.Model):
     def validate_livestock(self) -> bool: return (
         self.livestock_id.state == 'soldout'
     )
+
+    def get_inspections(self): return self.livestock_id.get_inspections()
+    def get_last_inspection(self): return self.livestock_id.get_last_inspection()
+    def get_last_image(self): return self.livestock_id.get_last_image()
+    @property
+    def last_weight(self): return self.livestock_id.last_weight
+    @property
+    def last_age(self): return self.livestock_id.last_age

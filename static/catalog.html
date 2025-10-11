@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Katalog</title>
+        <title>{title}</title>
         <script>
             const typeFilters = {type_filters};
             const priceFilters = {price_filters};
@@ -44,7 +44,7 @@
         </header>
         <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
             <!-- Products akan di-generate dari Kinan -->
-             {cards}
+            {cards}
         </div>
     </body>
     <script src="{STATIC_ROUTE_PREFIX}/catalog_type.js"></script>
