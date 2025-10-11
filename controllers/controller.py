@@ -39,34 +39,68 @@ class Controller(http.Controller):
     @http.route(ROUTE_PREFIX)
     def root(self): return http.request.redirect(FARM_CATALOG_ROUTE_PREFIX)
 
-    def catalog(self, table: str, **kwargs): return format(
-        (STATIC_PATH/'catalog.html').read_text(),
-        type_filters=to_json([{'name': type.name, 'value': type.id} for type in http.request.env['husbandry.type'].search([])]),
-        price_filters=to_json([{
-            'name': f'Rp{price_range[0]:,} - {price_range[1]:,}' if price_range[0] and price_range[1] else f'> Rp{price_range[0]:,}' if price_range[0] else f'< Rp{price_range[1]:,}',
-            'value': f'{price_range[0] or ''}-{price_range[1] or ''}',
-        } for price_range in PRICE_RANGES]),
-        cards='\n'.join(format(
-            (STATIC_PATH/'catalog_card.html').read_text(),
-            **self.get_product_data(product),
-        ) for product in http.request.env[table].search(['|', ('state', '=', 'saleable'), ('state', '=', 'onbook')])
-            if (str(product.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
-            and (float(kwargs['price'].split('-')[0] or '-inf') <= product.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
-            and ((str(kwargs['owner']).lower() in [str(product.owner_id.id), str(product.owner_id.name).lower()] if 'owner_id' in dir(product) else False) if 'owner' in kwargs and 'owner' else True)
-            and (kwargs['hideall'] != True if 'hideall' in kwargs else True)
-        ),
-    )
-
     @http.route(f'{FARM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
-    def farm_catalog(self, **kwargs): return self.catalog('husbandry.livestock', **kwargs)
+    def farm_catalog(self, **kwargs):
+        products = http.request.env['husbandry.livestock'].search([
+            '|', ('state', '=', 'saleable'), ('state', '=', 'onbook')
+        ])
+
+        filtered_products = [
+            p for p in products
+            if (str(p.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
+            and (float(kwargs['price'].split('-')[0] or '-inf') <= p.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
+        ]
+
+        cards = '\n'.join(format(
+            (STATIC_PATH / 'catalog_card.html').read_text(),
+            **self.get_product_data(p),
+        ) for p in filtered_products)
+
+        html = format(
+            (STATIC_PATH / 'catalog.html').read_text(),
+            type_filters=to_json([{'name': t.name, 'value': t.id} for t in http.request.env['husbandry.type'].search([])]),
+            price_filters=to_json([{
+                'name': f'Rp{r[0]:,} - {r[1]:,}' if r[0] and r[1] else f'> Rp{r[0]:,}' if r[0] else f'< Rp{r[1]:,}',
+                'value': f'{r[0] or ""}-{r[1] or ""}',
+            } for r in PRICE_RANGES]),
+            cards=cards,
+        )
+        return html
+
 
     @http.route(f'{DKM_CATALOG_ROUTE_PREFIX}', auth='public', website=True)
-    def dkm_catalog(self, **kwargs): return self.catalog(
-        'husbandry.livestock.purchased',
-        hideall='masjid' not in kwargs,
-        owner=kwargs['masjid'] if 'masjid' in kwargs else False,
-        **{key: value for key, value in kwargs.items() if key != 'owner'},
-    )
+    def dkm_catalog(self, **kwargs):                
+        hideall = 'masjid' not in kwargs
+        owner = kwargs.get('masjid', False)
+        print("woiiii")
+        products = http.request.env['husbandry.livestock.purchased'].sudo().search([
+            '|', ('state', '=', 'saleable'), ('state', '=', 'onbook')
+        ])
+        
+        filtered_products = [
+            p for p in products
+            if (str(p.type_id.id) == str(kwargs['type']) if 'type' in kwargs else True)
+            and (float(kwargs['price'].split('-')[0] or '-inf') <= p.purchase_price <= float(kwargs['price'].split('-')[1] or 'inf') if 'price' in kwargs else True)
+            and ((str(owner).lower() in [str(p.owner_id.id), str(p.owner_id.name).lower()] if 'owner_id' in dir(p) else False) if owner else True)
+            and (hideall != True)
+        ]
+
+        cards = '\n'.join(format(
+            (STATIC_PATH / 'catalog_card.html').read_text(),
+            **self.get_product_data(p),
+        ) for p in filtered_products)
+
+        html = format(
+            (STATIC_PATH / 'catalog.html').read_text(),
+            type_filters=to_json([{'name': t.name, 'value': t.id} for t in http.request.env['husbandry.type'].search([])]),
+            price_filters=to_json([{
+                'name': f'Rp{r[0]:,} - {r[1]:,}' if r[0] and r[1] else f'> Rp{r[0]:,}' if r[0] else f'< Rp{r[1]:,}',
+                'value': f'{r[0] or ""}-{r[1] or ""}',
+            } for r in PRICE_RANGES]),
+            cards=cards,
+        )
+        return html
+
 
     @http.route(f'{CATALOG_ITEM_ROUTE_PREFIX}/<int:id>')
     def catalog_item(self, id: int, **kwargs): return format(
