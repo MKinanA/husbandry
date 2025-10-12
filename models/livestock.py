@@ -89,9 +89,10 @@ class HusbandryLivestock(models.Model):
         return super().write(vals)
 
     @api.model
-    def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False, **unused_kwargs):
+    def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False, **kwargs):
         print('\nget_view method on HusbandryLivestock called')
-        res = super().get_view(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if 'alt_self' in kwargs: self = kwargs['alt_self']
+        res = super(next(value for key, value in globals().items() if isinstance(value, type) and getattr(value, '_name', None) == type(self).__name__), self).get_view(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         if view_type == 'form':
             res['arch'] = """
                 <form string="Livestock">
@@ -103,7 +104,7 @@ class HusbandryLivestock(models.Model):
             res['arch'] = res['arch'] + """
 
                     <header>
-                        <button name="create_invoice" string="Buy (coming soon)" type="object" invisible="state != 'saleable'" class="disabled"/>
+                        <button name="create_invoice" string="Buy (coming soon)" type="object" invisible="True or state != 'saleable'" class="disabled"/>
                         """f"""<field name="state" widget="statusbar" statusbar_visible="{','.join(map(lambda state: state[0], states))}" />""""""
                     </header>
               """f"""<sheet>
@@ -115,7 +116,8 @@ class HusbandryLivestock(models.Model):
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="product_tmpl_id" readonly="True" invisible="state == 'draft'"/>
-                                <field name="booker_id" string="Owner" readonly="True" invisible="not booker_id"/>
+                                <field name="booker_id" string="Booked by" readonly="True" invisible="state != 'onbook'"/>
+                                <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout'"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
                                 <button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != 'onbook'"/>
@@ -198,7 +200,7 @@ class HusbandryLivestock(models.Model):
                 </kanban>
         """
         elif view_type == 'search':
-             res['arch'] = """
+            res['arch'] = """
                 <search string="Livestock">
                     <field name="name" string="Name (Livestock ID)"/>
                     <field name="create_date" string="Registration Date" readonly="1"/>
@@ -207,6 +209,9 @@ class HusbandryLivestock(models.Model):
                     <field name="kelompok"/>
                 </search>
         """
+        if 'replace' in kwargs: res['arch'] = res['arch'].replace(*kwargs['replace'])
+        if f'custom_{view_type}_view' in kwargs: res['arch'] = kwargs[f'custom_{view_type}_view']
+        print(f'{res['arch'] = }')
         from lxml import etree
         doc = etree.XML(res['arch'])
         View = self.env['ir.ui.view'].sudo()
@@ -254,6 +259,7 @@ class HusbandryLivestock(models.Model):
         'view_mode': 'form',
         'target': 'new',
         'context': {
+            'message': 'Confirm sale of livestock to booker?\nBe sure to confirm booker\'s payment before proceeding.',
             'target_model': 'husbandry.livestock',
             'target_id': self.id,
             'target_method': 'confirm_sale',
@@ -368,6 +374,48 @@ class HusbandryLivestockPurchased(models.Model):
     def validate_livestock(self) -> bool: return (
         self.livestock_id.state == 'soldout'
     )
+
+    @api.model
+    def get_view(self, view_id=None, view_type='form', toolbar=False, submenu=False, **kwargs):
+        xml_readonly_on_not_draft_states_purchased = xml_readonly_on_not_draft_states.replace('state', 'livestock_id.state')
+        custom_form_view = f"""
+                {'<form string="Livestock" create=\'false\' edit=\'false\' delete=\'false\' copy=\'false\'>' if self.env.ref('husbandry.group_husbandry_customer') in self.env.user.groups_id else '<form string="Livestock">'}
+                    <header>
+                        <button name="create_invoice" string="Buy (coming soon)" type="object" invisible="True or state != 'saleable'" class="disabled"/>
+                        """f"""<field name="state" widget="statusbar" statusbar_visible="{','.join(map(lambda state: state[0], states))}" />""""""
+                    </header>
+              """f"""<sheet>
+                        <group>
+                            <group>
+                                <field name="livestock_id" string="Livestock"/>
+                            </group>
+                            <group>
+                                <field name="create_date" string="Purchase Date" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Images">
+                                <group col="4">
+                                    <field name="image_front" widget="image" string="Image 1" options="{{'size': [320, 180]}}" readonly="{xml_readonly_on_not_draft_states_purchased}"/>
+                                    <field name="image_right" widget="image" string="Image 2" options="{{'size': [320, 180]}}" readonly="{xml_readonly_on_not_draft_states_purchased}"/>
+                                    <field name="image_left" widget="image" string="Image 3" options="{{'size': [320, 180]}}" readonly="{xml_readonly_on_not_draft_states_purchased}"/>
+                                    <field name="image_back" widget="image" string="Image 4" options="{{'size': [320, 180]}}" readonly="{xml_readonly_on_not_draft_states_purchased}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>""""""
+                </form>
+        """
+        return self.livestock_id.get_view(
+            view_id,
+            view_type,
+            toolbar,
+            submenu,
+            # custom_form_view = custom_form_view,
+            # replace = ('state', 'livestock_id.state'),
+            alt_self = self,
+            **kwargs,
+        )
 
     def get_inspections(self): return self.livestock_id.get_inspections()
     def get_last_inspection(self): return self.livestock_id.get_last_inspection()

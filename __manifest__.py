@@ -16,8 +16,7 @@
         'views/husbandry.xml',
         'views/menu.xml',
         'security/ir.model.access.csv',
-        'views/catalog.xml',
-        'views/confirm_livestock_sale_wizard.xml',
+        'views/confirmation_wizard.xml',
     ],
 
     'application': True,

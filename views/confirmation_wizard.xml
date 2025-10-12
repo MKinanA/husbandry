@@ -3,14 +3,15 @@
         <field name="name">Confirmation Wizard</field>
         <field name="model">confirmation.wizard</field>
         <field name="arch" type="xml">
-        <form string="Confirm Sale">
-            <p>Confirm sale of livestock to booker?</p>
-            <p>Be sure to confirm booker's payment before proceeding.</p>
-            <footer>
-            <button name="submit" string="Confirm sale" type="object" class="btn-primary"/>
-            <button string="Cancel" special="cancel"/>
-            </footer>
-        </form>
+            <form>
+                <group>
+                    <field name="message" readonly="1" nolabel="1"/>
+                </group>
+                <footer>
+                <button name="submit" string="Confirm" type="object" class="btn-primary"/>
+                <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 
