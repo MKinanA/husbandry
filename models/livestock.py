@@ -18,7 +18,7 @@ xml_readonly_on_not_draft_states = ' or '.join(f'state == \'{state[0]}\'' for st
 
 purchased_states = [
     ('draft', 'Draft'),
-    ('unbooked', 'Unbooked'),
+    ('saleable', 'Sellable'),
     ('booked', 'Booked'),
     ('purchased', 'Purchased'),
 ]
@@ -365,7 +365,7 @@ class HusbandryLivestockPurchased(models.Model):
     }
 
     owner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
-    state = fields.Selection(purchased_states, string='State', readonly=True, default='draft')
+    state = fields.Selection(purchased_states, string='State', readonly=True, default='saleable')
     livestock_id = fields.Many2one('husbandry.livestock', required=True, ondelete='restrict')
 
     _sql_constraints = [
