@@ -116,9 +116,9 @@ class HusbandryLivestock(models.Model):
                                 <field name="weight" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
-                                <field name="product_tmpl_id" readonly="True" invisible="state == 'draft'"/>
-                                <field name="booker_id" string="Booked by" readonly="True" invisible="state != 'onbook'"/>
-                                <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout'"/>
+                                <field name="product_tmpl_id" readonly="True" invisible="state == 'draft' or livestock_id"/>
+                                <field name="booker_id" string="Booked by" readonly="True" invisible="state != 'onbook' or livestock_id"/>
+                                <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout' or livestock_id"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
                                 <button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != 'onbook'"/>
@@ -210,7 +210,22 @@ class HusbandryLivestock(models.Model):
                     <field name="kelompok"/>
                 </search>
         """
-        if 'replace' in kwargs: res['arch'] = res['arch'].replace(*kwargs['replace'])
+        if 'replace' in kwargs:
+            for replacement in kwargs['replace']:
+                if ((replacement[2].lower() == view_type.lower()) if len(replacement) >= 3 else True): res['arch'] = res['arch'].replace(*replacement[:2])
+        if 'replace_lines_with' in kwargs:
+            result = ''
+            for line in res['arch'].split('\n'):
+                line_replaced = False
+                for replacement in kwargs['replace_lines_with']:
+                    if ((replacement[2].lower() == view_type.lower()) if len(replacement) >= 3 else True) and replacement[0] in line:
+                        result += replacement[1]
+                        line_replaced = True
+                        break
+                if not line_replaced: result += line
+                result += '\n'
+            if result[-1] == '\n': result = result[:-1]
+            res['arch'] = result
         if f'custom_{view_type}_view' in kwargs: res['arch'] = kwargs[f'custom_{view_type}_view']
         print(f'{res['arch'] = }')
         from lxml import etree
@@ -413,10 +428,28 @@ class HusbandryLivestockPurchased(models.Model):
             toolbar,
             submenu,
             # custom_form_view = custom_form_view,
-            # replace = ('state', 'livestock_id.state'),
+            replace = [
+                (xml_readonly_on_not_draft_states, 'True', 'form'),
+                ('field name="name"', 'field name="name" readonly="True"', 'form'),
+            ],
+            replace_lines_with = [
+                ('button name="sell_product"', '', 'form'),
+                ('button name="unsell_product"', '', 'form'),
+            ],
             alt_self = self,
             **kwargs,
         )
+
+    def sell_product(self):
+        if self.state != 'draft': raise UserError('PurchasedLivestock state is not draft')
+        self.state = 'saleable'
+
+    def unsell_product(self):
+        if self.state != 'saleable': raise UserError('PurchasedLivestock state is not saleable')
+        self.state = 'draft'
+
+    def book(self): pass
+
 
     def get_inspections(self): return self.livestock_id.get_inspections()
     def get_last_inspection(self): return self.livestock_id.get_last_inspection()
