@@ -92,6 +92,10 @@ class Controller(http.Controller):
         'age_rounded': f'{round(product.last_age):,}',
         'purchase_price_formatted': f'{product.purchase_price:,}',
         'book_api': f'{ROUTE_PREFIX}/{product.id}/book',
+        'images': '\n'.join(format(
+            (STATIC_PATH/'catalog_item_image.html').read_text(),
+            image=f'data:image/*;base64,{image.decode()}'
+        ) for image in product.get_images()),
         **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},
     }
 

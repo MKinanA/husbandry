@@ -56,11 +56,12 @@ class HusbandryLivestock(models.Model):
     def get_inspections(self): return [inspection for inspection in http.request.env['husbandry.inspection'].search([], order='date') if inspection.livestock_id.id == self.id]
     def get_last_inspection(self): return last_inspection[0] if len(last_inspection := self.get_inspections()) >= 1 else None
 
-    def get_last_image(self):
+    def get_images(self):
         images = []
         for inspection in self.get_inspections() + [self]: images += [eval(f'inspection.{image_property}') for image_property in inspection._fields if all(not image_property.startswith(x) for x in ['<', '_']) and 'binary' in inspection._fields[image_property].type.lower() and 'image' in image_property]
-        for image in images:
-            if image: return image
+        return [image for image in images if image]
+    def get_last_image(self):
+        for image in self.get_images(): return image
 
     @property
     def last_weight(self):
