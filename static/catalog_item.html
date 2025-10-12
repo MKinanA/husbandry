@@ -15,10 +15,15 @@
             <h2 class="text-2xl font-semibold text-gray-950 mb-2">{name}</h2>
             <div class="flex flex-row justify-between">
                 <div>
-                    <p class="text-md text-gray-950">Last inspection: {last_inspection_date}</p>
+                    <p class="text-md text-gray-950">Price: Rp{purchase_price_formatted}</p>
+                    <p class="text-md text-gray-950">Reference: {reference}</p>
                     <p class="text-md text-gray-950">Weight: {weight_formatted}kg</p>
                     <p class="text-md text-gray-950">Age: {age_rounded} y/o</p>
-                    <p class="text-md text-gray-950">Price: Rp{purchase_price_formatted}</p>
+                    <p class="text-md text-gray-950">Origin: {origin}</p>
+                    <p class="text-md text-gray-950">Group: {kelompok}</p>
+                    <p class="text-md text-gray-950">Type: {type_id.name}</p>
+                    <p class="text-md text-gray-950">Jatah: {jatah}</p>
+                    <p class="text-md text-gray-950">Last inspection: {last_inspection_date}</p>
                 </div>
                 <button data-book-api="{book_api}" id="book-button" class="py-2 px-3 leading-none self-end text-white font-medium bg-green-700 hover:bg-green-900 rounded-sm cursor-pointer focus:outline-2 focus:outline-offset-2 focus:outline-green-700 active:bg-green-900">Book Now</button>
             </div>
