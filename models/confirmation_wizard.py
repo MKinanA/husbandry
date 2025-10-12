@@ -15,8 +15,7 @@ class ConfirmationWizard(models.TransientModel):
         target_model = self.env.context.get('target_model')
         target_id = self.env.context.get('target_id')
         target_method = self.env.context.get('target_method')
-        try: target_args = self.env.context.get('target_args')
-        except: target_args = []
+        target_args = self.env.context.get('target_args') or []
         target = self.env[self.env.context.get('target_model')].browse(target_id)
         if not target: raise UserError(f'Target record not found ({target_model = }, {target_id = }).')
         if not hasattr(target, target_method): raise UserError(f'Can\'t access target method ({target_method = }).')
