@@ -64,6 +64,13 @@
         <field name="domain_force"> [('partner_id','=',user.partner_id.id)]</field>
     </record>
 
+    <record model="ir.rule" id="public_access_for_purchased_livestock_rule">
+        <field name="name">Public Access for Purchased Livestock</field>
+        <field name="model_id" ref="model_husbandry_livestock_purchased" />
+        <field name="groups"
+            eval="[(4, ref('base.group_public'))]" />
+    </record>
+
     <!--Rule -->
 
 </odoo>

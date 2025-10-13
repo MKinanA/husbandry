@@ -12,6 +12,6 @@ if (productState != 'saleable') {
 
 bookButton.addEventListener('click', async event => {
     console.log('book button clicked');
-    response = await fetch(bookButton.dataset.bookApi);
+    response = await fetch(`${bookButton.dataset.bookApi}?customer_name=example&customer_number=example&customer_email=example&customer_address=example`);
     if ((await response.json()) === true) location.reload();
 });

@@ -17,10 +17,9 @@ attrs_based_on_state = lambda state, states = readonly_on_not_draft_states: ' '.
 xml_readonly_on_not_draft_states = ' or '.join(f'state == \'{state[0]}\'' for state in states if state[0] != exclude_for_readonly) # {'readonly': [*['|'] * (len([state for state in states if state[0] != exclude_for_readonly]) - 1), *[('state', '==', state[0]) for state in states if state[0] != exclude_for_readonly]]}
 
 purchased_states = [
-    ('draft', 'Draft'),
     ('saleable', 'Sellable'),
     ('booked', 'Booked'),
-    ('purchased', 'Purchased'),
+    ('sold', 'Sold'),
 ]
 
 class HusbandryLivestock(models.Model):
@@ -28,7 +27,7 @@ class HusbandryLivestock(models.Model):
     _inherits = {'product.template': 'product_tmpl_id'}
 
     weight = fields.Float(string="Weight (kg)", states=readonly_on_not_draft_states)
-    age = fields.Float(string="Age", states=readonly_on_not_draft_states)
+    age = fields.Float(string="Age (months)", states=readonly_on_not_draft_states)
     origin = fields.Char(string="Origin", states=readonly_on_not_draft_states)
     vendor_id = fields.Many2one('res.partner', string="Vendor", default=lambda self: self.env.user.partner_id.id, states=readonly_on_not_draft_states)
     purchase_price = fields.Float(related='product_tmpl_id.list_price', string="Purchase Price (Rp)", readonly=False, states=readonly_on_not_draft_states)
@@ -210,6 +209,7 @@ class HusbandryLivestock(models.Model):
                     <field name="kelompok"/>
                 </search>
         """
+
         if 'replace' in kwargs:
             for replacement in kwargs['replace']:
                 if ((replacement[2].lower() == view_type.lower()) if len(replacement) >= 3 else True): res['arch'] = res['arch'].replace(*replacement[:2])
@@ -226,8 +226,14 @@ class HusbandryLivestock(models.Model):
                 result += '\n'
             if result[-1] == '\n': result = result[:-1]
             res['arch'] = result
+
         if f'custom_{view_type}_view' in kwargs: res['arch'] = kwargs[f'custom_{view_type}_view']
-        print(f'{res['arch'] = }')
+
+        # print(f'{res['arch'] = }')
+        # from pathlib import Path
+        # if self._name == 'husbandry.livestock.purchased':
+        #     with open(Path(__file__).parent/f'{view_type}_{str(len(kwargs['replace_lines_with']))}.xml', 'wt') as file: file.write(res['arch'])
+
         from lxml import etree
         doc = etree.XML(res['arch'])
         View = self.env['ir.ui.view'].sudo()
@@ -276,7 +282,7 @@ class HusbandryLivestock(models.Model):
         'target': 'new',
         'context': {
             'message': 'Confirm sale of livestock to booker?\nBe sure to confirm booker\'s payment before proceeding.',
-            'target_model': 'husbandry.livestock',
+            'target_model': self._name,
             'target_id': self.id,
             'target_method': 'confirm_sale',
         },
@@ -288,6 +294,7 @@ class HusbandryLivestock(models.Model):
         self.env['husbandry.livestock.purchased'].create({
             'livestock_id': self.id,
             'owner_id': self.booker_id.id,
+            'purchase_price': self.purchase_price,
         })
         self.state = 'soldout'
 
@@ -380,8 +387,14 @@ class HusbandryLivestockPurchased(models.Model):
     }
 
     owner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
-    state = fields.Selection(purchased_states, string='State', readonly=True, default='saleable')
     livestock_id = fields.Many2one('husbandry.livestock', required=True, ondelete='restrict')
+    resell_price = fields.Float(string="Resell Price (Rp)", readonly=False, states=readonly_on_not_draft_states)
+    state = fields.Selection(purchased_states, string='State', readonly=True, default='saleable')
+
+    customer_name = fields.Char(required=False)
+    customer_number = fields.Char(required=False)
+    customer_email = fields.Char(required=False)
+    customer_address = fields.Char(required=False)
 
     _sql_constraints = [
         ('unique_livestock_id', 'unique(livestock_id)', '`livestock_id` must be unique.'),
@@ -431,28 +444,58 @@ class HusbandryLivestockPurchased(models.Model):
             replace = [
                 (xml_readonly_on_not_draft_states, 'True', 'form'),
                 ('field name="name"', 'field name="name" readonly="True"', 'form'),
+                ('purchase_price', 'resell_price', 'kanban'),
+                ('purchase_price', 'resell_price', 'list'),
+                ('purchase_price', 'resell_price', 'search'),
             ],
             replace_lines_with = [
-                ('button name="sell_product"', '', 'form'),
-                ('button name="unsell_product"', '', 'form'),
+                ('button name="sell_product"', '<button name="unbook" string="Revoke (cancel booking)" type="object" invisible="state != \'booked\'"/>', 'form'),
+                ('button name="unsell_product"', '<button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != \'booked\'"/>', 'form'),
+                ('field name="purchase_price"', '<field name="purchase_price" readonly="True"/>\n<field name="resell_price" readonly="state != \'saleable\'"/>', 'form'),
             ],
             alt_self = self,
             **kwargs,
         )
 
-    def sell_product(self):
-        if self.state != 'draft': raise UserError('PurchasedLivestock state is not draft')
+    def book(self, customer_name: str, customer_number: str | None, customer_email: str | None, customer_address: str | None):
+        if self.state != 'saleable': raise UserError('PurchasedLivestock record state is not saleable')
+        if not (customer_number or customer_email): raise UserError('`customer_number` or `customer_email` (contact) must be set')
+        self.customer_name = customer_name
+        if customer_number: self.customer_number = customer_number
+        if customer_email: self.customer_email = customer_email
+        if customer_address: self.customer_address = customer_address
+        self.state = 'booked'
+
+    def unbook(self):
+        if self.state != 'booked': raise UserError('PurchasedLivestock record state is not booked')
+        self.customer_name = False
+        self.customer_number = False
+        self.customer_email = False
+        self.customer_address = False
         self.state = 'saleable'
 
-    def unsell_product(self):
-        if self.state != 'saleable': raise UserError('PurchasedLivestock state is not saleable')
-        self.state = 'draft'
+    def open_confirm_sale_wizard(self): return {
+        'name': 'Confirm Sale',
+        'type': 'ir.actions.act_window',
+        'res_model': 'confirmation.wizard',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'message': 'Confirm sale of livestock to booker?\nBe sure to confirm booker\'s payment before proceeding.',
+            'target_model': self._name,
+            'target_id': self.id,
+            'target_method': 'confirm_sale',
+        },
+    }
 
-    def book(self): pass
-
+    def confirm_sale(self):
+        if self.state != 'booked': raise UserError('Not booked.')
+        if not (self.customer_name and self.customer_number and self.customer_email and self.customer_address): raise UserError('Some required booking fields are not filled.')
+        self.state = 'sold'
 
     def get_inspections(self): return self.livestock_id.get_inspections()
     def get_last_inspection(self): return self.livestock_id.get_last_inspection()
+    def get_images(self): return self.livestock_id.get_images()
     def get_last_image(self): return self.livestock_id.get_last_image()
     @property
     def last_weight(self): return self.livestock_id.last_weight
