@@ -9,28 +9,29 @@
         </script>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
-    <body class="bg-white pt-2 pb-16 px-[4vw] sm:px-[6vw] md:px-[8vw] lg:px-[10vw] xl:px-[12vw] 2xl:px-[14vw]">
-        <img class="w-full aspect-1/1 object-cover rounded-md mb-4" style="object-position: top;" src="{image}" alt="Item Image">
-        <div class="bg-white p-4 rounded-md">
-            <h1 class="text-2xl font-semibold text-gray-950 mb-2">{name}</h1>
-            <div class="flex flex-row justify-between">
-                <div>
-                    <p class="text-md text-gray-950">Price: Rp{purchase_price_formatted}</p>
-                    <p class="text-md text-gray-950">Reference: {reference}</p>
-                    <p class="text-md text-gray-950">Weight: {weight_formatted}kg</p>
-                    <p class="text-md text-gray-950">Age: {age_rounded} y/o</p>
-                    <p class="text-md text-gray-950">Origin: {origin}</p>
-                    <p class="text-md text-gray-950">Group: {kelompok}</p>
-                    <p class="text-md text-gray-950">Type: {type_id.name}</p>
-                    <p class="text-md text-gray-950">Jatah: {jatah}</p>
-                    <p class="text-md text-gray-950">Last inspection: {last_inspection_date}</p>
-                </div>
-                <button data-book-api="{book_api}" id="book-button" class="py-2 px-3 leading-none self-end text-white font-medium bg-green-700 hover:bg-green-900 rounded-sm cursor-pointer focus:outline-2 focus:outline-offset-2 focus:outline-green-700 active:bg-green-900">Book Now</button>
-            </div>
-            <br>
-            <h2 class="text-xl font-semibold text-gray-950 mb-2">Images</h2>
-            {images}
+    <body class="bg-white pt-2 pb-16 px-[4vw] sm:px-[6vw] md:px-[8vw] lg:px-[10vw] xl:px-[12vw] 2xl:px-[14vw] flex flex-col">
+        <div class="flex flex-col gap-4 mb-4 sm:mb-8 sm:flex-row-reverse sm:justify-between sm:items-center">
+            <img class="w-full sm:w-[50%] md:w-[40%] lg:w-[30%] xl:w-[20%] 2xl:w-[10%] sm:origin-top-right sm:hover:scale-[200%] aspect-16/9 object-cover rounded-md sm:transition sm:transition-all sm:duration-[.250s] sm:ease-out" style="object-position: top;" src="{image}" alt="Item Image">
+            <h1 class="text-2xl font-semibold text-gray-950">{name}</h1>
         </div>
+        <div class="flex flex-col justify-between sm:flex-row">
+            <div class="sm:w-[50%]">
+                <p class="text-md text-gray-950">Price: Rp{purchase_price_formatted}</p>
+                <p class="text-md text-gray-950">Reference: {reference}</p>
+                <p class="text-md text-gray-950">Weight: {weight_formatted}kg</p>
+                <p class="text-md text-gray-950">Age: {age_rounded} y/o</p>
+                <p class="text-md text-gray-950">Origin: {origin}</p>
+            </div>
+            <div class="sm:w-[50%]">
+                <p class="text-md text-gray-950">Group: {kelompok}</p>
+                <p class="text-md text-gray-950">Type: {type_id.name}</p>
+                <p class="text-md text-gray-950">Jatah: {jatah}</p>
+                <p class="text-md text-gray-950">Last inspection: {last_inspection_date}</p>
+            </div>
+        </div>
+        <button data-book-api="{book_api}" id="book-button" class="py-2 px-3 my-4 leading-none self-end text-white font-medium bg-green-700 hover:bg-green-900 rounded-sm cursor-pointer focus:outline-2 focus:outline-offset-2 focus:outline-green-700 active:bg-green-900">Book Now</button>
+        <h2 class="text-xl font-semibold text-gray-950 mb-2 mt-8">Images</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:6 gap-4">{images}</div>
     </body>
     <script src="{STATIC_ROUTE_PREFIX}/catalog_item.js"></script>
 </html>
