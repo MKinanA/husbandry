@@ -5,7 +5,7 @@ access_husbandry_livestock_vendor,husbandry.livestock,model_husbandry_livestock,
 access_husbandry_livestock_admin,husbandry.livestock,model_husbandry_livestock,base.group_system,1,1,1,1
 access_husbandry_type_user,husbandry.type,model_husbandry_type,base.group_user,1,0,0,0
 access_husbandry_type_admin,husbandry.type,model_husbandry_type,base.group_system,1,1,1,1
-access_husbandry_inspection_user,husbandry.inspection,model_husbandry_inspection,base.group_public,1,0,0,0
+access_husbandry_inspection_user,husbandry.inspection,model_husbandry_inspection,,1,0,0,0
 access_husbandry_inspection_vendor,husbandry.inspection,model_husbandry_inspection,husbandry.group_husbandry_vendor,1,1,1,1
 access_husbandry_inspection_admin,husbandry.inspection,model_husbandry_inspection,base.group_system,1,1,1,1
 access_account_tax_husbandry_customer,account.tax,account.model_account_tax,husbandry.group_husbandry_customer,1,0,0,0
@@ -29,7 +29,7 @@ access_account_tax_group_husbandry_customer,account.tax.group,account.model_acco
 access_account_asset_category_invoicing_payment_husbandry_customer,account.asset.category,om_account_asset.model_account_asset_category,husbandry.group_husbandry_customer,1,0,0,0
 access_account_asset_asset_invoicing_payment_husbandry_customer,account.asset.asset,om_account_asset.model_account_asset_asset,husbandry.group_husbandry_customer,1,0,1,0
 access_account_asset_depreciation_line_invoicing_payment_husbandry_customer,account.asset.depreciation.line,om_account_asset.model_account_asset_depreciation_line,husbandry.group_husbandry_customer,1,0,1,0
-access_husbandry_type_public,access.husbandry.type.public,model_husbandry_type,base.group_public,1,0,0,0
+access_husbandry_type_public,access.husbandry.type.public,model_husbandry_type,,1,0,0,0
 access_husbandry_livestock_public,access.husbandry.livestock.public,model_husbandry_livestock,base.group_public,1,0,0,0
 access_husbandry_livestock_purchased_public,access.husbandry.livestock.purchased.public,model_husbandry_livestock_purchased,base.group_public,1,1,0,0
 access_husbandry_livestock_purchased_admin,access.husbandry.livestock.purchased.admin,model_husbandry_livestock_purchased,base.group_system,1,1,1,1
