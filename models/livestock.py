@@ -294,7 +294,7 @@ class HusbandryLivestock(models.Model):
         self.env['husbandry.livestock.purchased'].create({
             'livestock_id': self.id,
             'owner_id': self.booker_id.id,
-            'purchase_price': self.purchase_price,
+            'resell_price': self.purchase_price,
         })
         self.state = 'soldout'
 
