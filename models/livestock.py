@@ -397,10 +397,10 @@ class HusbandryLivestockPurchased(models.Model):
     resell_price = fields.Float(string="Resell Price (Rp)", readonly=False, states=readonly_on_not_draft_states)
     state = fields.Selection(purchased_states, string='State', readonly=True, default='saleable')
 
-    customer_name = fields.Char(required=False)
-    customer_number = fields.Char(required=False)
-    customer_email = fields.Char(required=False)
-    customer_address = fields.Char(required=False)
+    customer_name = fields.Char(required=False, readonly=True)
+    customer_number = fields.Char(required=False, readonly=True)
+    customer_email = fields.Char(required=False, readonly=True)
+    customer_address = fields.Char(required=False, readonly=True)
 
     _sql_constraints = [
         ('unique_livestock_id', 'unique(livestock_id)', '`livestock_id` must be unique.'),
@@ -455,7 +455,14 @@ class HusbandryLivestockPurchased(models.Model):
                 ('purchase_price', 'resell_price', 'search'),
             ],
             replace_lines_with = [
-                ('button name="sell_product"', '<button name="unbook" string="Revoke (cancel booking)" type="object" invisible="state != \'booked\'"/>', 'form'),
+                ('button name="sell_product"', (
+                    '<br invisible="state != \'booked\'"/>\n'
+                    '<field name="customer_name" string="Customer name" readonly="True" invisible="state != \'booked\'"/>\n'
+                    '<field name="customer_number" string="Customer number" readonly="True" invisible="state != \'booked\'"/>\n'
+                    '<field name="customer_email" string="Customer email" readonly="True" invisible="state != \'booked\'"/>\n'
+                    '<field name="customer_address" string="Customer address" readonly="True" invisible="state != \'booked\'"/>\n'
+                    '<button name="unbook" string="Revoke (cancel booking)" type="object" invisible="state != \'booked\'"/>'
+                ), 'form'),
                 ('button name="unsell_product"', '<button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != \'booked\'"/>', 'form'),
                 ('field name="purchase_price"', '<field name="purchase_price" readonly="True"/>\n<field name="resell_price" readonly="state != \'saleable\'"/>', 'form'),
                 ('button name="unbook"', '', 'form'),
