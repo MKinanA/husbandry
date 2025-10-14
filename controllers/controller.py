@@ -105,6 +105,10 @@ class Controller(http.Controller):
         get_product = product.sudo if 'use_sudo' in kwargs and kwargs['use_sudo'] == True else lambda: product
         return {
             'product_details_url': f'{item_route_prefix}/{get_product().id}',
+            'catalog_type': {
+                FARM_CATALOG_ITEM_ROUTE_PREFIX: 'farm',
+                DKM_CATALOG_ITEM_ROUTE_PREFIX: 'dkm',
+            }[item_route_prefix],
             'inspections': get_product().get_inspections(),
             'last_inspection_date': (last_inspection_date if (last_inspection := get_product().get_last_inspection()) and (last_inspection_date := last_inspection.date) else get_product().create_date.date()).strftime('%d/%m/%Y'),
             'image': f'data:image/*;base64,{(get_product().get_last_image() or FALLBACK_IMAGE).decode()}',

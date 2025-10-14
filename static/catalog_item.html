@@ -6,6 +6,7 @@
         <title>Katalog</title>
         <script>
             const productState = '{state}';
+            const catalogType = '{catalog_type}';
         </script>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
@@ -34,6 +35,21 @@
         </div>
         <h2 class="text-xl font-semibold text-gray-950 mb-2 mt-8">Images</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:6 gap-4">{images}</div>
+        <div id="book-form" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+            <div class="bg-white w-[90%] sm:w-[400px] rounded-lg shadow-lg p-6 flex flex-col gap-4">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Booking Information</h3>
+                <form class="flex flex-col gap-3">
+                    <input id="book-form-customer-name" type="text" placeholder="Full Name *" class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-700" required>
+                    <input id="book-form-customer-number" type="tel" placeholder="Phone Number" class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-700">
+                    <input id="book-form-customer-email" type="email" placeholder="Email Address" class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-700">
+                    <textarea id="book-form-customer-address" placeholder="Full Address" rows="3" class="border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-700 resize-none"></textarea>
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button type="button" id="cancel-button" onclick="hideBookForm();" class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium">Cancel</button>
+                        <button type="submit" id="submit-button" onclick="submitBookForm(event);" class="px-4 py-2 rounded-md bg-green-700 hover:bg-green-800 text-white font-medium">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <script src="{STATIC_ROUTE_PREFIX}/catalog_item.js"></script>
     </body>
 </html>
