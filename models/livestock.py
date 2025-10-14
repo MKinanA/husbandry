@@ -120,6 +120,7 @@ class HusbandryLivestock(models.Model):
                                 <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout' or livestock_id"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
+                                <button name="unbook" string="Revoke booking" type="object" invisible="state != 'onbook'"/>
                                 <button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != 'onbook'"/>
                             </group>
                             <group>
@@ -249,14 +250,13 @@ class HusbandryLivestock(models.Model):
         #    category_id = self.env.ref('product.product_category_all')
         #    # uom_id = self.env.ref('product.product_uom_unit')
         #    self.sudo().product_tmpl_id = self.sudo().product_tmpl_id.create({'name': name, 'list_price': self.purchase_price, 'categ_id': category_id.id, })# 'uom_po_id': uom_id.id, 'uom_id': uom_id.id,})
-        
         if self.state == 'draft':
             self.state = 'saleable'
             self.product_tmpl_id.update({
                 'sale_ok': True,
             })
         else: raise UserError('Product state is not draft')
-    
+
     def unsell_product(self):
         if self.state == 'saleable':
             self.state = 'draft'
@@ -273,6 +273,12 @@ class HusbandryLivestock(models.Model):
             'state': 'onbook',
             'booker_id': partner_id,
         })
+
+    def unbook(self, partner_id: int | None = None):
+        if self.state != 'onbook': raise UserError('Not booked.')
+        if partner_id != None and self.booker_id != partner_id: raise UserError('You\'re not the booker.')
+        self.booker_id = False
+        self.state = 'saleable'
 
     def open_confirm_sale_wizard(self): return {
         'name': 'Confirm Sale',
@@ -452,6 +458,7 @@ class HusbandryLivestockPurchased(models.Model):
                 ('button name="sell_product"', '<button name="unbook" string="Revoke (cancel booking)" type="object" invisible="state != \'booked\'"/>', 'form'),
                 ('button name="unsell_product"', '<button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != \'booked\'"/>', 'form'),
                 ('field name="purchase_price"', '<field name="purchase_price" readonly="True"/>\n<field name="resell_price" readonly="state != \'saleable\'"/>', 'form'),
+                ('button name="unbook"', '', 'form'),
             ],
             alt_self = self,
             **kwargs,
