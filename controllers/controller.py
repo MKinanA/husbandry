@@ -98,30 +98,29 @@ class Controller(http.Controller):
         format_replace_on_string = [('purchase_price_formatted', 'resell_price_formatted')],
         use_sudo=True,
         **self.get_product_data(product, DKM_CATALOG_ITEM_ROUTE_PREFIX),
-    ) if (product if (product := http.request.env['husbandry.livestock.purchased'].browse(id)).state in ['saleable', 'booked'] else None) else None
+    ) if (product if (product := http.request.env['husbandry.livestock.purchased'].sudo().browse(id)).state in ['saleable', 'booked'] else None) else None
 
     @staticmethod
     def get_product_data(product: HusbandryLivestock | HusbandryLivestockPurchased, item_route_prefix: str, **kwargs):
-        get_product = product.sudo if 'use_sudo' in kwargs and kwargs['use_sudo'] == True else lambda: product
         return {
-            'product_details_url': f'{item_route_prefix}/{get_product().id}',
+            'product_details_url': f'{item_route_prefix}/{product.id}',
             'catalog_type': {
                 FARM_CATALOG_ITEM_ROUTE_PREFIX: 'farm',
                 DKM_CATALOG_ITEM_ROUTE_PREFIX: 'dkm',
             }[item_route_prefix],
-            'inspections': get_product().get_inspections(),
-            'last_inspection_date': (last_inspection_date if (last_inspection := get_product().get_last_inspection()) and (last_inspection_date := last_inspection.date) else get_product().create_date.date()).strftime('%d/%m/%Y'),
-            'image': f'data:image/*;base64,{(get_product().get_last_image() or FALLBACK_IMAGE).decode()}',
-            'weight_formatted': f'{get_product().last_weight:,}',
-            'age_rounded': f'{round(get_product().last_age):,}',
-            'purchase_price_formatted': f'{get_product().purchase_price:,}',
-            'resell_price_formatted': f'{(get_product().resell_price if hasattr(get_product(), 'resell_price') else 0):,}',
-            'book_api': f'{item_route_prefix}/{get_product().id}/book',
+            'inspections': product.get_inspections(),
+            'last_inspection_date': (last_inspection_date if (last_inspection := product.get_last_inspection()) and (last_inspection_date := last_inspection.date) else product.create_date.date()).strftime('%d/%m/%Y'),
+            'image': f'data:image/*;base64,{(product.get_last_image() or FALLBACK_IMAGE).decode()}',
+            'weight_formatted': f'{product.last_weight:,}',
+            'age_rounded': f'{round(product.last_age):,}',
+            'purchase_price_formatted': f'{product.purchase_price:,}',
+            'resell_price_formatted': f'{(product.resell_price if hasattr(product, 'resell_price') else 0):,}',
+            'book_api': f'{item_route_prefix}/{product.id}/book',
             'images': '\n'.join(format(
                 (STATIC_PATH/'catalog_item_image.html').read_text(),
                 image=f'data:image/*;base64,{image.decode()}'
-            ) for image in get_product().get_images()),
-            **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(get_product()) if all(not product_attr.startswith(x) for x in ['<', '_'])},
+            ) for image in product.get_images()),
+            **{product_attr: eval(f'product.{product_attr}') for product_attr in dir(product) if all(not product_attr.startswith(x) for x in ['<', '_'])},
         }
 
     @http.route(f'{FARM_CATALOG_ITEM_ROUTE_PREFIX}/<int:id>/book', auth='user', website=True)
