@@ -115,9 +115,9 @@ class HusbandryLivestock(models.Model):
                                 <field name="weight" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="age" readonly="{xml_readonly_on_not_draft_states}"/>
                                 <field name="origin" readonly="{xml_readonly_on_not_draft_states}"/>
-                                <field name="product_tmpl_id" readonly="True" invisible="state == 'draft' or livestock_id"/>
-                                <field name="booker_id" string="Booked by" readonly="True" invisible="state != 'onbook' or livestock_id"/>
-                                <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout' or livestock_id"/>
+                                <field name="product_tmpl_id" readonly="True" invisible="not livestock_id"/>
+                                <br/><field name="booker_id" string="Booked by" readonly="True" invisible="state != 'onbook'"/>
+                                <field name="booker_id" string="Owner" readonly="True" invisible="state != 'soldout'"/>
                                 <button name="sell_product" string="Make Saleable" type="object" invisible="state != 'draft'"/>
                                 <button name="unsell_product" string="Unsell" type="object" invisible="state != 'saleable'"/>
                                 <button name="unbook" string="Revoke booking" type="object" invisible="state != 'onbook'"/>
@@ -456,16 +456,18 @@ class HusbandryLivestockPurchased(models.Model):
             ],
             replace_lines_with = [
                 ('button name="sell_product"', (
-                    '<br invisible="state != \'booked\'"/>\n'
-                    '<field name="customer_name" string="Customer name" readonly="True" invisible="state != \'booked\'"/>\n'
-                    '<field name="customer_number" string="Customer number" readonly="True" invisible="state != \'booked\'"/>\n'
-                    '<field name="customer_email" string="Customer email" readonly="True" invisible="state != \'booked\'"/>\n'
-                    '<field name="customer_address" string="Customer address" readonly="True" invisible="state != \'booked\'"/>\n'
+                    '<br invisible="state != \'booked\' and state != \'sold\'"/>\n'
+                    '<field name="customer_name" string="Customer name" readonly="True" invisible="state != \'booked\' and state != \'sold\'"/>\n'
+                    '<field name="customer_number" string="Customer number" readonly="True" invisible="state != \'booked\' and state != \'sold\'"/>\n'
+                    '<field name="customer_email" string="Customer email" readonly="True" invisible="state != \'booked\' and state != \'sold\'"/>\n'
+                    '<field name="customer_address" string="Customer address" readonly="True" invisible="state != \'booked\' and state != \'sold\'"/>\n'
                     '<button name="unbook" string="Revoke (cancel booking)" type="object" invisible="state != \'booked\'"/>'
                 ), 'form'),
                 ('button name="unsell_product"', '<button name="open_confirm_sale_wizard" string="Confirm Sale" type="object" invisible="state != \'booked\'"/>', 'form'),
                 ('field name="purchase_price"', '<field name="purchase_price" readonly="True"/>\n<field name="resell_price" readonly="state != \'saleable\'"/>', 'form'),
                 ('button name="unbook"', '', 'form'),
+                ('field name="product_tmpl_id"', '', 'form'),
+                ('field name="booker_id"', '', 'form'),
             ],
             alt_self = self,
             **kwargs,
